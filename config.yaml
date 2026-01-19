@@ -1,0 +1,18 @@
+settings:
+  scan_interval: 60
+  request_timeout: 5
+  user_agent: "The-Watchtower-Bot/1.0"
+
+targets:
+  - name: "Google Test"
+    url: "https://www.google.com"
+    check_ssl: true
+    expected_status: 200
+
+  - name: "Local Test"
+    url: "http://localhost:8080"
+    check_ssl: false
+
+notifications:
+  discord_webhook: "URL_YOK"
+  enable_alert: true
