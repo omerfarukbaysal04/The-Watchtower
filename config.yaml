@@ -1,5 +1,5 @@
 settings:
-  scan_interval: 60
+  scan_interval: 10
   request_timeout: 5
   user_agent: "The-Watchtower-Bot/1.0"
 
@@ -14,5 +14,6 @@ targets:
     check_ssl: false
 
 notifications:
-  discord_webhook: "URL_YOK"
+  discord_webhook: "https://discord.com/api/webhooks/1463140166582534247/ScO2v8Gf_NxOm8ANPWJEI0FGMrJCeBlXR1GfW7vwO1pylsU6GRhhkQaCsDoqG3zKI4Le"
   enable_alert: true
+  notify_on_succcess: true

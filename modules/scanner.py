@@ -11,6 +11,9 @@ def check_website(url, timeout=5):
         "code": None,
         "latency": 0
     }
+    if url.startswith("https://"):
+        days = get_ssl_days_left(url) 
+        result["ssl_days"] = days     
 
     try:
         response = requests.get(url, timeout=timeout)
