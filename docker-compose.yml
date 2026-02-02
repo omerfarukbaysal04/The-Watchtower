@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    container_name: watchtower_bot
+    environment:
+      - PYTHONUNBUFFERED=1  
+    volumes:
+      - .:/app
+    restart: always
+    tty: true               

@@ -8,12 +8,17 @@ targets:
     url: "https://www.google.com"
     check_ssl: true
     expected_status: 200
+    port_scan: true
+    port_range: "80,443"
 
   - name: "Local Test"
     url: "http://localhost:8080"
     check_ssl: false
+    expected_status: 200
+    port_scan: true
+    port_range: "20-100"
 
 notifications:
-  discord_webhook: "https://discord.com/api/webhooks/1463140166582534247/ScO2v8Gf_NxOm8ANPWJEI0FGMrJCeBlXR1GfW7vwO1pylsU6GRhhkQaCsDoqG3zKI4Le"
+  discord_webhook: "URL_YOK"
   enable_alert: true
-  notify_on_succcess: true
+  notify_on_success: true
