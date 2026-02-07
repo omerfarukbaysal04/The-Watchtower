@@ -4,13 +4,12 @@ class ReconScanner:
     def __init__(self):
         self.nm = nmap.PortScanner()
 
-    def scan_target(self, target_ip, port_range='1-1000'):
-        print(f"[INFO] {target_ip} üzerinde {port_range} portları taranıyor...")
-        
+    def scan_target(self, target_ip):        
         try:
             # -Pn: Ping atma
             # -sT: Connect Scan (Docker için daha stabil)
-            self.nm.scan(target_ip, port_range, arguments='-sV -sT -T4 -Pn')
+            arguments = '-sV -sT -T4 -Pn --top-ports 100 --max-retries 1 --version-light'
+            self.nm.scan(target_ip, arguments=arguments)
             
             hosts = self.nm.all_hosts()
             
