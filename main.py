@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 import os
-import asyncio #
+import asyncio 
 from modules.engine import run_scanner_loop 
 
 from modules.database import create_db_and_tables, get_session
@@ -24,7 +24,6 @@ async def on_startup():
 @app.get("/", response_class=HTMLResponse)
 async def read_dashboard(request: Request, db: Session = Depends(get_session)):
 
-    # Veritabanından tüm hedefleri çek
     targets = db.exec(select(Target)).all()
     
     context = {
@@ -46,5 +45,4 @@ async def add_target(
     db.commit()
     db.refresh(new_target)
     
-    # İşlem bitince ana sayfaya yönlendir
     return RedirectResponse(url="/", status_code=303)

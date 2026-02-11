@@ -2,13 +2,17 @@ services:
   app:
     build: .
     container_name: watchtower_bot
-
+    # 👇 BU KISIM ÇOK ÖNEMLİ 👇
+    cap_add:
+      - NET_ADMIN
+    # 👆 EĞER BU YOKSA -sS ÇALIŞMAZ 👆
     volumes:
       - .:/app
-    restart: always
-    tty: true               
     ports:
-      - "8000:8000"  
+      - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=Europe/Istanbul
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4

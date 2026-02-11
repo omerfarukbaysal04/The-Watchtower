@@ -1,134 +1,413 @@
 <!DOCTYPE html>
-<html lang="tr" data-bs-theme="dark"></html>
+<html lang="tr" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ app_name }}</title>
+    <title>{{ app_name }} - Komuta Merkezi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+
     <style>
+        :root {
+            --bg-color: #0f1115;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --accent-color: #58a6ff;
+            --text-primary: #c9d1d9;
+            --success-color: #238636;
+            --danger-color: #da3633;
+            --warning-color: #d29922;
+        }
+
         body {
-            background-color: #121212;
-            color: #e0e0e0;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            padding-bottom: 50px;
         }
 
-        .card {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
+        /* --- NAVBAR --- */
+        .navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
         }
 
-        .table {
-            color: #e0e0e0;
+        .navbar-brand {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--accent-color) !important;
+            letter-spacing: -0.5px;
+        }
+
+        /* --- TARGET CARDS (GRID) --- */
+        .target-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .target-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .target-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent-color);
+        }
+
+        .card-header {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .target-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .target-url {
+            font-size: 0.8rem;
+            color: #8b949e;
+            text-decoration: none;
+        }
+
+        .card-body {
+            padding: 15px;
+            flex-grow: 1;
+        }
+
+        /* --- DURUM BADGE'LARI --- */
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-up {
+            background: rgba(35, 134, 54, 0.2);
+            color: #3fb950;
+            border: 1px solid rgba(35, 134, 54, 0.4);
+        }
+
+        .status-down {
+            background: rgba(218, 54, 51, 0.2);
+            color: #f85149;
+            border: 1px solid rgba(218, 54, 51, 0.4);
+        }
+
+        .status-scan {
+            background: rgba(88, 166, 255, 0.2);
+            color: #58a6ff;
+            border: 1px solid rgba(88, 166, 255, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(88, 166, 255, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(88, 166, 255, 0);
+            }
+        }
+
+        /* --- PORT LISTESİ --- */
+        .port-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .port-badge {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .port-badge i {
+            color: var(--accent-color);
+            margin-right: 4px;
+        }
+
+        /* --- ZAFİYET KUTULARI --- */
+        .vuln-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .vuln-item {
+            font-size: 0.75rem;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: #0d1117;
+            border-left: 3px solid #30363d;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        /* Scrollbar Design */
+        .vuln-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .vuln-container::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+
+        .vuln-container::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 3px;
+        }
+
+        .vuln-container::-webkit-scrollbar-thumb:hover {
+            background: #58a6ff;
+        }
+
+        /* Temalar */
+        .vuln-cve {
+            border-left-color: var(--danger-color);
+            background: rgba(218, 54, 51, 0.05);
+        }
+
+        .vuln-ssl {
+            border-left-color: var(--success-color);
+            background: rgba(35, 134, 54, 0.05);
+        }
+
+        .vuln-web {
+            border-left-color: var(--accent-color);
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        .vuln-robot {
+            border-left-color: var(--warning-color);
+            background: rgba(210, 153, 34, 0.05);
+        }
+
+        .vuln-title {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 4px;
+            opacity: 0.9;
+        }
+
+        /* --- MODAL DIZAYN --- */
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
         }
 
         .form-control {
-            background-color: #2c2c2c;
-            border: 1px solid #444;
+            background-color: #0d1117;
+            border: 1px solid var(--border-color);
             color: white;
         }
 
         .form-control:focus {
-            background-color: #2c2c2c;
+            background-color: #0d1117;
+            border-color: var(--accent-color);
             color: white;
+            box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
         }
     </style>
 </head>
 
-<script>
-    setTimeout(function () {
-        window.location.reload(1);
-    }, 5000);
-</script>
-</body>
-
 <body>
-    <div class="container mt-5">
-        <div class="text-center mb-5">
-            <h1 class="display-5">🏰 {{ app_name }}</h1>
-            <p class="text-muted">Yönetim Paneli</p>
-        </div>
 
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card p-4 mb-4">
-                    <h4>🎯 Yeni Hedef Ekle</h4>
-                    <form action="/add" method="post">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fa-solid fa-tower-observation"></i> {{ app_name }}
+            </a>
+
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addTargetModal">
+                <i class="fa-solid fa-plus"></i> Yeni Hedef Ekle
+            </button>
+        </div>
+    </nav>
+
+    <div class="target-grid">
+        {% for target in targets %}
+        <div class="target-card">
+            <div class="card-header">
+                <div>
+                    <div class="target-name">{{ target.name }}</div>
+                    <a href="{{ target.url }}" target="_blank" class="target-url">{{ target.url }}</a>
+                </div>
+                <div>
+                    {% if "Aktif" in target.status %}
+                    <span class="status-badge status-up"><i class="fa-solid fa-check"></i> UP</span>
+                    {% elif "Erişilemiyor" in target.status %}
+                    <span class="status-badge status-down"><i class="fa-solid fa-xmark"></i> DOWN</span>
+                    {% elif "Taranıyor" in target.status %}
+                    <span class="status-badge status-scan"><i class="fa-solid fa-radar"></i> SCANNING</span>
+                    {% else %}
+                    <span class="status-badge" style="background:#333; color:#aaa;">WAITING</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                {% if target.last_error %}
+                <div class="alert alert-danger p-2 mb-3" style="font-size: 0.8rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> <strong>Hata:</strong> {{ target.last_error }}
+                </div>
+                {% endif %}
+
+                {% if target.open_ports %}
+                <div class="port-list">
+                    {% for port_info in target.open_ports.split(',') %}
+                    <span class="port-badge">
+                        <i class="fa-solid fa-plug"></i> {{ port_info }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if target.vulns %}
+                <div class="vuln-container">
+                    {% for vuln_item in target.vulns.split('|') %}
+                    {% set clean_item = vuln_item | replace('p80:', '') | replace('p443:', '') | replace('p25:', '') |
+                    replace('p8080:', '') %}
+
+                    {% if 'vulners' in vuln_item or 'CVE-' in vuln_item %}
+                    <div class="vuln-item vuln-cve">
+                        <span class="vuln-title" style="color:#ff7b72"><i class="fa-solid fa-biohazard"></i> KRİTİK
+                            ZAFİYET</span>
+                        {{ clean_item.replace('vulners:', '').replace('CVE-', '<a
+                            href="https://www.google.com/search?q=CVE-" target="_blank"
+                            style="color:#ff7b72; font-weight:bold;">CVE-') | safe }}</a>
+                    </div>
+
+                    {% elif 'ssl-cert' in vuln_item %}
+                    <div class="vuln-item vuln-ssl">
+                        <span class="vuln-title" style="color:#3fb950"><i class="fa-solid fa-lock"></i> SSL / TLS</span>
+                        {{ clean_item.replace('[ssl-cert]:', '').replace('Subject:', 'Subject:<br>').replace('Issuer:',
+                        '<br>Issuer:') | safe }}
+                    </div>
+
+                    {% elif 'http-title' in vuln_item or 'http-server' in vuln_item %}
+                    <div class="vuln-item vuln-web">
+                        <span class="vuln-title" style="color:#58a6ff"><i class="fa-solid fa-globe"></i> Web
+                            Analizi</span>
+                        {{ clean_item.replace('[http-server-header]:', 'Sunucu:').replace('[http-title]:',
+                        '<br>Başlık:') | safe }}
+                    </div>
+
+                    {% elif 'robots.txt' in vuln_item %}
+                    <div class="vuln-item vuln-robot">
+                        <span class="vuln-title" style="color:#d29922"><i class="fa-solid fa-robot"></i>
+                            Robots.txt</span>
+                        {{ clean_item.replace('[http-robots.txt]:', '') }}
+                    </div>
+                    {% else %}
+                    <div class="vuln-item">
+                        <span class="vuln-title text-muted"><i class="fa-solid fa-info-circle"></i> Bilgi</span>
+                        {{ clean_item }}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="mt-3 text-end">
+                    <small class="text-muted" style="font-size: 0.7rem;">
+                        <i class="fa-regular fa-clock"></i> Son Tarama: {{ target.last_check.strftime('%H:%M:%S') if
+                        target.last_check else '-' }}
+                    </small>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="modal fade" id="addTargetModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa-solid fa-crosshairs"></i> Yeni Hedef Ekle</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="/add" method="post">
+                    <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Hedef İsmi</label>
-                            <input type="text" name="name" class="form-control" placeholder="Örn: Google" required>
+                            <input type="text" name="name" class="form-control" placeholder="Örn: Müşteri Prod Sunucusu"
+                                required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">URL</label>
                             <input type="url" name="url" class="form-control" placeholder="https://..." required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Takibe Başla</button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="col-md-8">
-                <div class="card p-4">
-                    <h4>📡 İzlenen Sistemler</h4>
-                    <table class="table table-dark table-hover mt-3">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>İsim</th>
-                                <th>URL</th>
-                                <th>Durum</th>
-                                <th>Portlar</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for target in targets %}
-                            <tr>
-                                <td>{{ target.id }}</td>
-                                <td>
-                                    <strong>{{ target.name }}</strong>
-                                    <br>
-                                    <small class="text-muted" style="font-size: 0.8rem;">
-                                        🕒 Son: {{ target.last_check.strftime('%H:%M:%S') if target.last_check else '-' }}
-                                    </small>
-                                </td>
-                                <td>
-                                    <a href="{{ target.url }}" target="_blank" class="text-decoration-none text-info">{{ target.url }}</a>
-                                    {% if target.last_error %}
-                                    <br><span class="badge bg-danger" style="font-size: 0.7rem;">Hata: {{ target.last_error[:20] }}...</span>
-                                    {% endif %}
-                                </td>
-                            <td>
-                                {% if "Aktif" in target.status %}
-                                <span class="badge bg-success">UP</span>
-                            
-                                {% elif "Erişilemiyor" in target.status %}
-                                <span class="badge bg-danger">DOWN</span>
-                            
-                                {% elif "Taranıyor" in target.status %}
-                                <span class="badge bg-info text-dark">
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                    Taranıyor...
-                                </span>
-                            
-                                {% else %}
-                                <span class="badge bg-secondary">BEKLİYOR</span>
-                                {% endif %}
-                                <td>
-                                    {% if target.open_ports %}
-                                    {% for port in target.open_ports.split(',') %}
-                                    <span class="badge border border-secondary text-light">{{ port }}</span>
-                                    {% endfor %}
-                                    {% else %}
-                                    <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% else %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                        <button type="submit" class="btn btn-primary">Takibe Başla</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    setInterval(function () {
+        var modalElement = document.getElementById('addTargetModal');
+
+        var isModalOpen = modalElement.classList.contains('show');
+
+        if (!isModalOpen) {
+            window.location.reload();
+        } else {
+            console.log("Modal açık, yenileme ertelendi...");
+        }
+    }, 5000); 
+</script>
 </body>
 
 </html>
