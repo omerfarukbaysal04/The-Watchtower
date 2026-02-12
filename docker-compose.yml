@@ -2,10 +2,8 @@ services:
   app:
     build: .
     container_name: watchtower_bot
-    # 👇 BU KISIM ÇOK ÖNEMLİ 👇
     cap_add:
       - NET_ADMIN
-    # 👆 EĞER BU YOKSA -sS ÇALIŞMAZ 👆
     volumes:
       - .:/app
     ports:
@@ -16,3 +14,5 @@ services:
     dns:
       - 8.8.8.8
       - 8.8.4.4
+    env_file:
+      - .env

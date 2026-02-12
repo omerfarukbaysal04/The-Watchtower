@@ -3,12 +3,14 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
+from fastapi import Form
 import os
 import asyncio 
 from modules.engine import run_scanner_loop 
 
-from modules.database import create_db_and_tables, get_session
+from modules.database import create_db_and_tables, get_session, engine
 from modules.models import Target
+
 
 app = FastAPI(title="The Watchtower", version="2.0")
 
@@ -45,4 +47,25 @@ async def add_target(
     db.commit()
     db.refresh(new_target)
     
+    return RedirectResponse(url="/", status_code=303)
+
+@app.post("/delete/{target_id}")
+async def delete_target(target_id: int):
+    with Session(engine) as db:
+        target = db.get(Target, target_id)
+        if target:
+            db.delete(target)
+            db.commit()
+    return RedirectResponse(url="/", status_code=303)
+
+@app.post("/update/{target_id}")
+async def update_target(target_id: int, name: str = Form(...), url: str = Form(...)):
+    with Session(engine) as db:
+        target = db.get(Target, target_id)
+        if target:
+            target.name = name
+            target.url = url
+            target.status = "Güncellendi ⏳"
+            db.add(target)
+            db.commit()
     return RedirectResponse(url="/", status_code=303)

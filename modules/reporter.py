@@ -1,31 +1,38 @@
 import requests
-import json
 
-def send_discord_alert(webhook_url, message):
+def send_telegram_alert(token, chat_id, message):
+    """
+    Telegram Bot API kullanarak mesaj gönderir.
+    
+    Args:
+        token (str): BotFather'dan alınan API Token
+        chat_id (str): Mesajın gideceği Kullanıcı veya Grup ID'si
+        message (str): Gönderilecek mesaj içeriği (HTML destekli)
+    """
 
-    if not webhook_url or webhook_url == "URL_YOK":
+    # Eğer token veya chat_id yoksa hiç uğraşma
+    if not token or not chat_id or token == "TOKEN_YOK":
+        print("⚠️ [UYARI] Telegram Token veya Chat ID eksik, bildirim gönderilemedi.")
         return False
 
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+
     data = {
-        "content": message,
-        "username": "The Watchtower",
-        "avatar_url": "https://cdn-icons-png.flaticon.com/512/993/993361.png" 
+        "chat_id": chat_id,
+        "text": message,
+        "parse_mode": "HTML",  # Kalın/İtalik yazı desteği için
+        "disable_web_page_preview": True # Link önizlemelerini kapat (daha temiz görünür)
     }
 
     try:
-        response = requests.post(
-            webhook_url, 
-            data=json.dumps(data),
-            headers={"Content-Type": "application/json"},
-            timeout=10 
-        )
-        
-        if response.status_code == 204:
+        response = requests.post(url, data=data, timeout=10)
+
+        if response.status_code == 200:
             return True
         else:
-            print(f"Discord Hatası: {response.status_code} - {response.text}")
+            print(f"❌ [TELEGRAM HATASI] {response.status_code} - {response.text}")
             return False
-            
+
     except Exception as e:
-        print(f"Webhook Gönderim Hatası: {str(e)}")
+        print(f"❌ [BAĞLANTI HATASI] Telegram'a ulaşılamadı: {str(e)}")
         return False

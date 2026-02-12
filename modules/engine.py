@@ -1,5 +1,5 @@
-# modules/engine.py
 import asyncio
+import os
 from datetime import datetime
 from sqlmodel import Session, select
 from modules.database import engine
@@ -7,6 +7,7 @@ from modules.scanner import check_website
 from modules.recon_scanner import ReconScanner  
 from modules.models import Target
 from urllib.parse import urlparse
+from modules.reporter import send_telegram_alert
 
 
 
@@ -62,6 +63,44 @@ async def process_single_target(target_id):
                         
                         vuln_list = [f"p{item['port']}: {item['vuln']}" for item in scan_res if item['vuln']]
                         target.vulns = " | ".join(vuln_list) if vuln_list else None
+
+                        # ... (önceki kodlar) ...
+                        vuln_list = [f"p{item['port']}: {item['vuln']}" for item in scan_res if item['vuln']]
+                        
+                        if vuln_list:
+                            # Veritabanına kaydet
+                            target.vulns = " | ".join(vuln_list)
+                            
+                            # --- TELEGRAM BİLDİRİMİ (YENİ) ---
+                            # Sadece kritik zafiyet varsa (vulners veya CVE geçiyorsa) bildir
+                            # --- TELEGRAM BİLDİRİMİ (DÜZELTİLMİŞ) ---
+                            # Sadece kritik zafiyet varsa (vulners veya CVE geçiyorsa) bildir
+                            if "vulners" in target.vulns or "CVE-" in target.vulns:
+                                
+                                # Tokenları güvenli yerden çekiyoruz
+                                TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+                                CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+                                
+                                # Token ve ID VARSA gönder (continue kullanmadan)
+                                if TELEGRAM_TOKEN and CHAT_ID:
+                                    
+                                    # Mesajı hazırla (HTML formatında)
+                                    msg = f"<b>🚨 WATCHTOWER ALARMI!</b>\n\n" \
+                                          f"🎯 <b>Hedef:</b> {target.name}\n" \
+                                          f"🌐 <b>URL:</b> {target.url}\n" \
+                                          f"⚠️ <b>Tehlike:</b> Kritik Zafiyet Tespit Edildi!\n\n" \
+                                          f"🔍 <i>Detaylar panelde...</i>"
+                                    
+                                    # Gönder
+                                    send_telegram_alert(TELEGRAM_TOKEN, CHAT_ID, msg)
+                                    print(f"📨 [BİLDİRİM] {target.name} için Telegram gönderildi.")
+                                
+                                else:
+                                    # Token yoksa sadece uyarı bas (continue gerekmez, blok biter)
+                                    print("⚠️ [UYARI] .env dosyasında Telegram bilgileri eksik, bildirim atlanıyor.")
+                            # ---------------------------------
+                        else:
+                            target.vulns = None
                     else:
                         target.open_ports = "Açık Port Yok (Filtrelenmiş Olabilir)"
                 else:
