@@ -30,28 +30,22 @@ async def process_single_target(target_id):
         print(f"🔎 [TARAMA BAŞLADI] {target.name}")
         
         target.status = "Taranıyor... ⏳"
-        target.open_ports = None  # Eski portları sil
-        target.ssl_days = None    # Eski SSL bilgisini sil
+        target.open_ports = None  
+        target.ssl_days = None    
         target.last_error = None
         db.add(target)
         db.commit()
         
-        # --- TARAMA AŞAMASI ---
         try:
-            # 1. Her işçi için KENDİ scanner'ını oluştur (Race Condition önlemi)
             local_scanner = ReconScanner()
 
-            # 2. Site Ayakta mı?
             report = await asyncio.to_thread(check_website, target.url)
             
             if report["status"] == "UP":
-                target.status = "Aktif 🟢"
                 target.ssl_days = report.get("ssl_days")
                 
-                # 3. Port Taraması (Sadece site UP ise)
                 hostname = get_hostname(target.url)
                 
-                # Scanner'ı çalıştır
                 scan_res = await asyncio.to_thread(local_scanner.scan_target, hostname)
                 
                 if isinstance(scan_res, list):
@@ -60,45 +54,37 @@ async def process_single_target(target_id):
                         details_list = [f"{item['port']}/{item['service']}" for item in scan_res]
                         target.open_ports = ", ".join(details_list)
                         
-                        
-                        vuln_list = [f"p{item['port']}: {item['vuln']}" for item in scan_res if item['vuln']]
+                        vuln_list = []
+
+                        for item in scan_res:
+                            for s in item.get("scripts", []):
+                                vuln_list.append(
+                                    f"p{item['port']}:[{s['name']}]: {s['output']}"
+                                )
+
                         target.vulns = " | ".join(vuln_list) if vuln_list else None
 
-                        # ... (önceki kodlar) ...
-                        vuln_list = [f"p{item['port']}: {item['vuln']}" for item in scan_res if item['vuln']]
                         
                         if vuln_list:
-                            # Veritabanına kaydet
                             target.vulns = " | ".join(vuln_list)
-                            
-                            # --- TELEGRAM BİLDİRİMİ (YENİ) ---
-                            # Sadece kritik zafiyet varsa (vulners veya CVE geçiyorsa) bildir
-                            # --- TELEGRAM BİLDİRİMİ (DÜZELTİLMİŞ) ---
-                            # Sadece kritik zafiyet varsa (vulners veya CVE geçiyorsa) bildir
                             if "vulners" in target.vulns or "CVE-" in target.vulns:
                                 
-                                # Tokenları güvenli yerden çekiyoruz
                                 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
                                 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
                                 
-                                # Token ve ID VARSA gönder (continue kullanmadan)
                                 if TELEGRAM_TOKEN and CHAT_ID:
                                     
-                                    # Mesajı hazırla (HTML formatında)
                                     msg = f"<b>🚨 WATCHTOWER ALARMI!</b>\n\n" \
                                           f"🎯 <b>Hedef:</b> {target.name}\n" \
                                           f"🌐 <b>URL:</b> {target.url}\n" \
                                           f"⚠️ <b>Tehlike:</b> Kritik Zafiyet Tespit Edildi!\n\n" \
                                           f"🔍 <i>Detaylar panelde...</i>"
                                     
-                                    # Gönder
                                     send_telegram_alert(TELEGRAM_TOKEN, CHAT_ID, msg)
                                     print(f"📨 [BİLDİRİM] {target.name} için Telegram gönderildi.")
                                 
                                 else:
-                                    # Token yoksa sadece uyarı bas (continue gerekmez, blok biter)
                                     print("⚠️ [UYARI] .env dosyasında Telegram bilgileri eksik, bildirim atlanıyor.")
-                            # ---------------------------------
                         else:
                             target.vulns = None
                     else:
@@ -111,6 +97,9 @@ async def process_single_target(target_id):
             target.last_error = str(e)
             print(f"HATA DETAYI: {e}")
             
+        if target.last_error is None:
+            target.status = "Aktif 🟢"
+
         # Sonuçları Kaydet
         target.last_check = datetime.now()
         db.add(target)
@@ -127,7 +116,6 @@ async def run_scanner_loop():
                 target_ids = [t.id for t in targets]
             
             if target_ids:
-                # Tüm hedefleri aynı anda ateşle
                 await asyncio.gather(*(process_single_target(t_id) for t_id in target_ids))
             
             print("💤 [MOTOR] Mola veriliyor (20 saniye)...")

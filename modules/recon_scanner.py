@@ -24,7 +24,7 @@ class ReconScanner:
             # 8080, 8443: Alternatif Web Portları (Admin panelleri genelde buradadır)
             # 3389: RDP (Windows Uzak Masaüstü)
 
-            arguments = f'-sV -sS -T4 -Pn -p {target_ports} --script=vulners,default --script-args mincvss=5.0 --script-timeout=30s'
+            arguments = f'-sV -sS -T4 -Pn -p {target_ports} --script=vulners,default,http-security-headers --script-args mincvss=5.0 --script-timeout=30s'
             
             self.nm.scan(target_ip, arguments=arguments)
             
@@ -57,18 +57,23 @@ class ReconScanner:
                         if not full_service_name:
                             full_service_name = service_name
 
-                        script_output = ""
+                        script_outputs = []
+
                         if 'script' in data:
                             for script_name, output in data['script'].items():
-                                script_output += f"[{script_name}]: {output[:50]}... "
+                                script_outputs.append({
+                                    "name": script_name,
+                                    "output": output
+                                })
+
 
                         info = {
                             "port": port,
                             "service": full_service_name,
-                            "vuln": script_output
+                            "scripts": script_outputs
                         }
+
                         scan_results.append(info)
-                        print(f"   🔓 {port}: {full_service_name} | {script_output}")
             
             return scan_results
 

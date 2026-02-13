@@ -5,34 +5,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }} - Komuta Merkezi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap"
         rel="stylesheet">
 
     <style>
         :root {
-            --bg-color: #0f1115;
+            --bg-dark: #0d1117;
             --card-bg: #161b22;
             --border-color: #30363d;
             --accent-color: #58a6ff;
-            --text-primary: #c9d1d9;
-            --success-color: #238636;
-            --danger-color: #da3633;
-            --warning-color: #d29922;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
+            background-color: var(--bg-dark);
+            color: #c9d1d9;
             font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(#30363d 1px, transparent 1px);
+            background-size: 30px 30px;
             padding-bottom: 50px;
         }
 
-        /* NAVBAR */
         .navbar {
-            background-color: var(--card-bg);
+            background-color: rgba(22, 27, 34, 0.95);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border-color);
             padding: 1rem 2rem;
         }
@@ -41,65 +40,45 @@
             font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
             color: var(--accent-color) !important;
-            letter-spacing: -0.5px;
         }
 
-        /* GRID LAYOUT */
         .target-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-            padding: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 25px;
+            padding: 25px;
         }
 
         .target-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
         }
 
         .target-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(-5px);
             border-color: var(--accent-color);
         }
 
         .card-header {
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.03);
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.02);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .target-name {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: #fff;
-        }
-
-        .target-url {
-            font-size: 0.8rem;
-            color: #8b949e;
-            text-decoration: none;
-        }
-
-        .card-body {
-            padding: 15px;
-            flex-grow: 1;
-        }
-
-        /* STATUS BADGES */
         .status-badge {
-            padding: 5px 10px;
+            padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
         }
 
@@ -115,68 +94,40 @@
             border: 1px solid rgba(218, 54, 51, 0.4);
         }
 
-        .status-scan {
-            background: rgba(88, 166, 255, 0.2);
-            color: #58a6ff;
-            border: 1px solid rgba(88, 166, 255, 0.4);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.4);
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(88, 166, 255, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(88, 166, 255, 0);
-            }
-        }
-
-        /* PORT LIST */
         .port-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
+            gap: 6px;
             margin-bottom: 15px;
         }
 
         .port-badge {
             background: #21262d;
             border: 1px solid #30363d;
-            color: #c9d1d9;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
             font-size: 0.75rem;
             font-family: 'JetBrains Mono', monospace;
         }
 
-        .port-badge i {
-            color: var(--accent-color);
-            margin-right: 4px;
-        }
-
-        /* VULNERABILITY BOXES */
         .vuln-container {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            max-height: 300px;
+            gap: 12px;
+            max-height: 400px;
             overflow-y: auto;
             padding-right: 5px;
         }
 
         .vuln-item {
-            font-size: 0.75rem;
-            padding: 10px;
-            border-radius: 6px;
+            font-size: 0.8rem;
+            padding: 15px;
+            border-radius: 8px;
             background-color: #0d1117;
-            border-left: 3px solid #30363d;
+            border-left: 4px solid #30363d;
             font-family: 'JetBrains Mono', monospace;
             white-space: pre-wrap;
+            line-height: 1.5;
             position: relative;
         }
 
@@ -184,72 +135,126 @@
             width: 6px;
         }
 
-        .vuln-container::-webkit-scrollbar-track {
-            background: #0d1117;
-        }
-
         .vuln-container::-webkit-scrollbar-thumb {
             background: #30363d;
             border-radius: 3px;
         }
 
-        .vuln-container::-webkit-scrollbar-thumb:hover {
-            background: #58a6ff;
-        }
-
         .vuln-cve {
-            border-left-color: var(--danger-color);
-            background: rgba(218, 54, 51, 0.05);
+            border-left-color: #da3633;
+            background: linear-gradient(90deg, rgba(218, 54, 51, 0.05), transparent);
         }
 
         .vuln-ssl {
-            border-left-color: var(--success-color);
-            background: rgba(35, 134, 54, 0.05);
+            border-left-color: #238636;
+            background: linear-gradient(90deg, rgba(35, 134, 54, 0.05), transparent);
         }
 
         .vuln-web {
-            border-left-color: var(--accent-color);
-            background: rgba(88, 166, 255, 0.05);
+            border-left-color: #58a6ff;
+            background: linear-gradient(90deg, rgba(88, 166, 255, 0.05), transparent);
         }
 
-        .vuln-robot {
-            border-left-color: var(--warning-color);
-            background: rgba(210, 153, 34, 0.05);
+        .vuln-headers {
+            border-left-color: #a371f7;
+            background: linear-gradient(90deg, rgba(163, 113, 247, 0.05), transparent);
         }
 
-        .vuln-title {
+        .hl-title {
+            color: #58a6ff;
+            font-weight: bold;
             display: block;
-            font-weight: 700;
-            margin-bottom: 4px;
-            opacity: 0.9;
+            margin-top: 5px;
         }
 
-        /* MODAL STYLES */
-        .modal-content {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
+        .hl-cve {
+            color: #ff7b72;
+            font-weight: bold;
+            text-decoration: underline;
         }
 
-        .modal-header {
-            border-bottom: 1px solid var(--border-color);
+        .hl-header {
+            color: #a371f7;
+            font-weight: bold;
+            display: block;
+            margin-top: 8px;
+            border-top: 1px dashed #444;
+            padding-top: 5px;
         }
 
-        .modal-footer {
-            border-top: 1px solid var(--border-color);
+        .hl-success {
+            color: #3fb950;
+            font-weight: bold;
         }
 
-        .form-control {
-            background-color: #0d1117;
-            border: 1px solid var(--border-color);
-            color: white;
+        .status-scan {
+            background: rgba(88, 166, 255, 0.08);
+            color: #58a6ff;
+            border: 1px solid rgba(88, 166, 255, 0.4);
+            position: relative;
+            overflow: hidden;
         }
 
-        .form-control:focus {
-            background-color: #0d1117;
-            border-color: var(--accent-color);
-            color: white;
-            box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+        .status-scan::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -40%;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(88,166,255,0.6),
+                transparent
+            );
+            animation: scan-glow 1.4s linear infinite;
         }
+
+        @keyframes scan-glow {
+            from { left: -40%; }
+            to   { left: 120%; }
+        }
+
+        .scan-text::after {
+            content: "";
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+
+        @keyframes dots {
+            0%   { content: ""; }
+            33%  { content: "."; }
+            66%  { content: ".."; }
+            100% { content: "..."; }
+        }
+
+        .target-card.scanning {
+            position: relative;
+            animation: scan-pulse 2.2s ease-in-out infinite;
+            border-color: rgba(88, 166, 255, 0.6);
+        }
+
+        @keyframes scan-pulse {
+            0% {
+                box-shadow:
+                    0 0 0 rgba(88,166,255,0.0),
+                    0 0 0 rgba(88,166,255,0.0);
+            }
+
+            50% {
+                box-shadow:
+                    0 0 18px rgba(88,166,255,0.25),
+                    0 0 35px rgba(88,166,255,0.15);
+            }
+
+            100% {
+                box-shadow:
+                    0 0 0 rgba(88,166,255,0.0),
+                    0 0 0 rgba(88,166,255,0.0);
+            }
+        }
+
+
     </style>
 </head>
 
@@ -257,157 +262,176 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="fa-solid fa-tower-observation"></i> {{ app_name }}
-            </a>
-
+            <a class="navbar-brand" href="#"><i class="fa-solid fa-tower-observation"></i> {{ app_name }}</a>
             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addTargetModal">
-                <i class="fa-solid fa-plus"></i> Yeni Hedef Ekle
+                <i class="fa-solid fa-plus"></i> Yeni Hedef
             </button>
         </div>
     </nav>
 
     <div class="target-grid">
         {% for target in targets %}
-        <div class="target-card">
+        <div class="target-card {% if target.status and target.status.startswith('Taranıyor') %}scanning{% endif %}">
             <div class="card-header">
                 <div>
-                    <div class="target-name">{{ target.name }}</div>
-                    <a href="{{ target.url }}" target="_blank" class="target-url">{{ target.url }}</a>
+                    <div style="font-weight:bold; color:white; font-size:1.1rem;">{{ target.name }}</div>
+                    <a href="{{ target.url }}" target="_blank"
+                        style="color:#8b949e; text-decoration:none; font-size:0.85rem;">{{ target.url }}</a>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    {% if "Aktif" in target.status %}
-                    <span class="status-badge status-up"><i class="fa-solid fa-check"></i> UP</span>
-                    {% elif "Erişilemiyor" in target.status %}
-                    <span class="status-badge status-down"><i class="fa-solid fa-xmark"></i> DOWN</span>
-                    {% elif "Taranıyor" in target.status %}
-                    <span class="status-badge status-scan"><i class="fa-solid fa-radar"></i> SCAN</span>
+                    {% if target.status and target.status.startswith("Taranıyor") %}
+                <span class="status-badge status-scan">SCAN</span>
+
+                    
+                    {% elif target.status and target.status.startswith("Aktif") %}
+                    <span class="status-badge status-up">UP</span>
+                    
+                    {% elif target.status and target.status.startswith("Hata") %}
+                    <span class="status-badge status-down">DOWN</span>
+                    
                     {% else %}
-                    <span class="status-badge" style="background:#333; color:#aaa;">WAIT</span>
+                    <span class="status-badge status-down">DOWN</span>
                     {% endif %}
 
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-dark border-0" type="button" data-bs-toggle="dropdown">
-                            <i class="fa-solid fa-ellipsis-vertical"></i>
-                        </button>
+                        <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown"><i
+                                class="fa-solid fa-ellipsis-vertical"></i></button>
                         <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="#"
+                                    onclick="fillEditModal('{{ target.id }}', '{{ target.name }}', '{{ target.url }}')"
+                                    data-bs-toggle="modal" data-bs-target="#editTargetModal">Düzenle</a></li>
                             <li>
-                                <a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                    data-bs-target="#editTargetModal"
-                                    onclick="fillEditModal('{{ target.id }}', '{{ target.name }}', '{{ target.url }}')">
-                                    <i class="fa-solid fa-pen text-warning"></i> Düzenle
-                                </a>
-                            </li>
-                            <li>
-                                <form action="/delete/{{ target.id }}" method="post"
-                                    onsubmit="return confirm('Bu hedefi silmek istediğine emin misin?');">
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <i class="fa-solid fa-trash"></i> Sil
-                                    </button>
-                                </form>
+                                <form action="/delete/{{ target.id }}" method="post" onsubmit="return confirm('Sil?');"
+                                    class="m-0"><button class="dropdown-item text-danger">Sil</button></form>
                             </li>
                         </ul>
                     </div>
                 </div>
             </div>
 
-            <div class="card-body">
+            <div class="card-body p-3 flex-grow-1">
                 {% if target.last_error %}
-                <div class="alert alert-danger p-2 mb-3" style="font-size: 0.8rem;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> <strong>Hata:</strong> {{ target.last_error }}
-                </div>
+                <div class="alert alert-danger p-2 mb-3" style="font-size:0.8rem"><i
+                        class="fa-solid fa-triangle-exclamation"></i> {{ target.last_error }}</div>
                 {% endif %}
 
                 {% if target.open_ports %}
                 <div class="port-list">
-                    {% for port_info in target.open_ports.split(',') %}
-                    <span class="port-badge">
-                        <i class="fa-solid fa-plug"></i> {{ port_info }}
-                    </span>
+                    {% for port in target.open_ports.split(',') %}
+                    <span class="port-badge"><i class="fa-solid fa-plug"></i> {{ port }}</span>
                     {% endfor %}
                 </div>
                 {% endif %}
 
                 {% if target.vulns %}
-                <div class="vuln-container">
+                <div class="vuln-container"
+                    style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">
+                    {% if target.vulns %}
                     {% for vuln_item in target.vulns.split('|') %}
-                    {% set clean_item = vuln_item | replace('p80:', '') | replace('p443:', '') | replace('p25:', '') |
-                    replace('p8080:', '') %}
-
-                    {% if 'vulners' in vuln_item or 'CVE-' in vuln_item %}
-                    <div class="vuln-item vuln-cve">
-                        <span class="vuln-title" style="color:#ff7b72"><i class="fa-solid fa-biohazard"></i> KRİTİK
-                            ZAFİYET</span>
-                        {{ clean_item.replace('vulners:', '').replace('CVE-', '<a
-                            href="https://www.google.com/search?q=CVE-" target="_blank"
-                            style="color:#ff7b72; font-weight:bold;">CVE-') | safe }}</a>
+                    {% set clean_item = vuln_item | replace('p80:', '') | replace('p443:', '') | replace('p25:', '') | replace('p8080:',
+                    '') | replace('vulners:', '') %}
+                
+                    {% if 'CVE-' in vuln_item or 'vulners' in vuln_item %}
+                    <div class="vuln-card error-card"
+                        style="background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545; padding: 12px; border-radius: 4px;">
+                        <strong style="color: #dc3545; display: block; margin-bottom: 5px;">
+                            <i class="fa-solid fa-biohazard"></i> KRİTİK ZAFİYET
+                        </strong>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #eecbc4;">
+                            {{ clean_item
+                            | replace('CVE-', '<a href="https://www.google.com/search?q=CVE-" target="_blank"
+                                style="color:#ff6b6b; font-weight:bold; text-decoration:underline;">CVE-')
+                                | replace('*EXPLOIT*', '<span class="badge bg-danger">EXPLOIT VAR</span>')
+                                | replace('https://vulners.com', '<br>🔗 ')
+                                | safe
+                                }}</a>
+                        </div>
                     </div>
+                
+                {% elif 'http-security-headers' in vuln_item|lower %}
+                <div class="vuln-card security-card"
+                    style="background: rgba(111, 66, 193, 0.1); border-left: 4px solid #6f42c1; padding: 12px; border-radius: 4px;">
+                    <strong style="color: #a371f7; display: block; margin-bottom: 5px;">
+                        <i class="fa-solid fa-shield-halved"></i> GÜVENLİK BAŞLIKLARI
+                    </strong>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #d0bfff;">
+                        {{ clean_item
+                        | replace('[http-security-headers]:', '')
+                        | replace('[http-security-headers]', '')
+                        | replace('http-security-headers:', '')
+                        | replace('Header:', '<br>• <strong>Header:</strong>')
+                        | replace('Description:', '<br>&nbsp;&nbsp;Desc:')
+                        | safe
+                        }}
+                    </div>
+                </div>
 
+                
                     {% elif 'ssl-cert' in vuln_item %}
-                    <div class="vuln-item vuln-ssl">
-                        <span class="vuln-title" style="color:#3fb950"><i class="fa-solid fa-lock"></i> SSL / TLS</span>
-                        {{ clean_item.replace('[ssl-cert]:', '').replace('Subject:', 'Subject:<br>').replace('Issuer:',
-                        '<br>Issuer:') | safe }}
+                    <div class="vuln-card ssl-card"
+                        style="background: rgba(25, 135, 84, 0.1); border-left: 4px solid #198754; padding: 12px; border-radius: 4px;">
+                        <strong style="color: #20c997; display: block; margin-bottom: 5px;">
+                            <i class="fa-solid fa-lock"></i> SSL SERTİFİKASI
+                        </strong>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #a3cfbb;">
+                            {{ clean_item | replace('[ssl-cert]:', '') | safe }}
+                        </div>
                     </div>
-
-                    {% elif 'http-title' in vuln_item or 'http-server' in vuln_item %}
-                    <div class="vuln-item vuln-web">
-                        <span class="vuln-title" style="color:#58a6ff"><i class="fa-solid fa-globe"></i> Web
-                            Analizi</span>
-                        {{ clean_item.replace('[http-server-header]:', 'Sunucu:').replace('[http-title]:',
-                        '<br>Başlık:') | safe }}
+                
+                    {% elif 'http-server' in vuln_item or 'http-title' in vuln_item %}
+                    <div class="vuln-card info-card"
+                        style="background: rgba(13, 202, 240, 0.1); border-left: 4px solid #0dcaf0; padding: 12px; border-radius: 4px;">
+                        <strong style="color: #0dcaf0; display: block; margin-bottom: 5px;">
+                            <i class="fa-solid fa-server"></i> WEB ANALİZİ
+                        </strong>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #9eeaf9;">
+                            {{ clean_item | replace('[http-server-header]:', 'Sunucu:') | replace('[http-title]:', 'Başlık:') }}
+                        </div>
                     </div>
-
-                    {% elif 'robots.txt' in vuln_item %}
-                    <div class="vuln-item vuln-robot">
-                        <span class="vuln-title" style="color:#d29922"><i class="fa-solid fa-robot"></i>
-                            Robots.txt</span>
-                        {{ clean_item.replace('[http-robots.txt]:', '') }}
-                    </div>
+                
                     {% else %}
-                    <div class="vuln-item">
-                        <span class="vuln-title text-muted"><i class="fa-solid fa-info-circle"></i> Bilgi</span>
-                        {{ clean_item }}
+                    <div class="vuln-card generic-card"
+                        style="background: rgba(255, 255, 255, 0.05); border-left: 4px solid #6c757d; padding: 12px; border-radius: 4px;">
+                        <strong style="color: #adb5bd; display: block; margin-bottom: 5px;">
+                            <i class="fa-solid fa-info-circle"></i> BİLGİ
+                        </strong>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #ced4da;">
+                            {{ clean_item }}
+                        </div>
                     </div>
                     {% endif %}
+                
                     {% endfor %}
+                    {% else %}
+                    <div class="text-muted text-center py-3" style="font-size: 0.8rem;">
+                        <i class="fa-solid fa-check-circle text-success"></i> Temiz! Zafiyet bulunamadı veya tarama bekleniyor.
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
+            {% endif %}
 
-                <div class="mt-3 text-end">
-                    <small class="text-muted" style="font-size: 0.7rem;">
-                        <i class="fa-regular fa-clock"></i> Son Tarama: {{ target.last_check.strftime('%H:%M:%S') if
-                        target.last_check else '-' }}
-                    </small>
-                </div>
+            <div class="text-end mt-3 text-muted" style="font-size:0.7rem">
+                <i class="fa-regular fa-clock"></i> {{ target.last_check.strftime('%H:%M:%S') if target.last_check else
+                '-' }}
             </div>
         </div>
-        {% endfor %}
+    </div>
+    {% endfor %}
     </div>
 
     <div class="modal fade" id="addTargetModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fa-solid fa-crosshairs"></i> Yeni Hedef Ekle</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title">Yeni Hedef</h5><button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
                 </div>
                 <form action="/add" method="post">
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Hedef İsmi</label>
-                            <input type="text" name="name" class="form-control" placeholder="Örn: Müşteri Prod Sunucusu"
-                                required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">URL</label>
-                            <input type="url" name="url" class="form-control" placeholder="https://..." required>
-                        </div>
+                        <input type="text" name="name" class="form-control mb-2" placeholder="İsim" required>
+                        <input type="url" name="url" class="form-control" placeholder="URL" required>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                        <button type="submit" class="btn btn-primary">Takibe Başla</button>
-                    </div>
+                    <div class="modal-footer"><button class="btn btn-primary">Ekle</button></div>
                 </form>
             </div>
         </div>
@@ -417,50 +441,28 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fa-solid fa-pen-to-square"></i> Hedefi Düzenle</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title">Düzenle</h5><button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editForm" method="post">
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Hedef İsmi</label>
-                            <input type="text" id="editName" name="name" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">URL</label>
-                            <input type="url" id="editUrl" name="url" class="form-control" required>
-                        </div>
+                        <input type="text" id="editName" name="name" class="form-control mb-2" required>
+                        <input type="url" id="editUrl" name="url" class="form-control" required>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                        <button type="submit" class="btn btn-warning text-dark">Güncelle</button>
-                    </div>
+                    <div class="modal-footer"><button class="btn btn-warning">Güncelle</button></div>
                 </form>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script>
         function fillEditModal(id, name, url) {
             document.getElementById('editName').value = name;
             document.getElementById('editUrl').value = url;
             document.getElementById('editForm').action = "/update/" + id;
         }
-
-        setInterval(function () {
-            var addModal = document.getElementById('addTargetModal');
-            var isAddOpen = addModal.classList.contains('show');
-
-            var editModal = document.getElementById('editTargetModal');
-            var isEditOpen = editModal.classList.contains('show');
-
-            if (!isAddOpen && !isEditOpen) {
-                window.location.reload();
-            } else {
-                console.log("Bir pencere açık, yenileme ertelendi...");
-            }
-        }, 5000); 
+        setInterval(() => { if (!document.querySelector('.modal.show')) window.location.reload(); }, 10000);
     </script>
 </body>
 
