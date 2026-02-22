@@ -1,4 +1,5 @@
 import nmap
+from modules.dns_scanner import DNSSecurityScanner #dns_scanner modülünü içe aktarıyoruz
 
 class ReconScanner:
     def __init__(self):
@@ -74,7 +75,20 @@ class ReconScanner:
                         }
 
                         scan_results.append(info)
+
+            print(f"📧 [DNS] {target_ip} için E-Posta Güvenlik (SPF/DMARC) analizi yapılıyor...")
+            dns_scanner = DNSSecurityScanner(target_ip)
+            dns_results = dns_scanner.run()
             
+            if dns_results: #dns tarama sonuçları boş değilse, genel sonuçlara ekle
+
+                scan_results.append({
+                    "port": "DNS",
+                    "service": "Alan Adı Güvenliği",
+                    "scripts": [{"name": "mail_sec", "output": dns_results}]
+                })
+
+
             return scan_results
 
         except Exception as e:
