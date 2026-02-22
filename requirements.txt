@@ -7,3 +7,4 @@ requests
 pyyaml
 python-nmap
 dnspython
+reportlab

@@ -11,6 +11,9 @@ from modules.engine import run_scanner_loop
 from modules.database import create_db_and_tables, get_session, engine
 from modules.models import Target
 
+from modules.pdf_generator import create_target_report
+from fastapi.responses import FileResponse
+
 
 app = FastAPI(title="The Watchtower", version="2.0")
 
@@ -69,3 +72,21 @@ async def update_target(target_id: int, name: str = Form(...), url: str = Form(.
             db.add(target)
             db.commit()
     return RedirectResponse(url="/", status_code=303)
+
+@app.get("/download_report/{target_id}")
+async def download_report(target_id: int, db: Session = Depends(get_session)): # 1. DÜZELTME: get_session oldu
+    # 2. DÜZELTME: SQLModel'e uygun veri çekme yöntemi
+    target = db.get(Target, target_id)
+    
+    if not target:
+        return {"error": "Hedef bulunamadi!"}
+        
+    pdf_path = create_target_report(
+        target_name=target.name,
+        target_url=target.url,
+        status=target.status,
+        open_ports=target.open_ports,
+        vulns_string=target.vulns
+    )
+    
+    return FileResponse(path=pdf_path, filename=f"The_Watchtower_{target.name}_Raporu.pdf", media_type='application/pdf')

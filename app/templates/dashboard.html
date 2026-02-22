@@ -9,416 +9,1036 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap"
         rel="stylesheet">
 
     <style>
+        /* ─── TOKENS ─────────────────────────────────────── */
         :root {
-            --bg-dark: #0d1117;
-            --card-bg: #161b22;
-            --border-color: #30363d;
-            --accent-color: #58a6ff;
+            --bg: #070b10;
+            --bg2: #0d1117;
+            --card: #0f1620;
+            --card-hover: #131c28;
+            --border: #1e2d3d;
+            --border-bright: #2a3f55;
+            --blue: #4fa3e0;
+            --blue-glow: rgba(79, 163, 224, .18);
+            --red: #e05252;
+            --red-glow: rgba(224, 82, 82, .15);
+            --orange: #e0963e;
+            --green: #4ec98b;
+            --purple: #9b7fe8;
+            --muted: #4a6070;
+            --text: #a8c0d0;
+            --text-bright: #daeaf5;
+            --mono: 'Space Mono', monospace;
+            --sans: 'Syne', sans-serif;
+            --radius: 10px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: #c9d1d9;
-            font-family: 'Inter', sans-serif;
-            background-image: radial-gradient(#30363d 1px, transparent 1px);
-            background-size: 30px 30px;
-            padding-bottom: 50px;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: .25;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── NAVBAR ─────────────────────────────────────── */
         .navbar {
-            background-color: rgba(22, 27, 34, .95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 2rem;
-        }
-
-        .navbar-brand {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            color: var(--accent-color) !important;
-        }
-
-        .target-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 25px;
-            padding: 25px;
-        }
-
-        .target-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, .1);
-            transition: transform .2s;
-        }
-
-        .target-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-color);
-        }
-
-        .card-header {
-            padding: 15px 20px;
-            background: rgba(255, 255, 255, .02);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: .75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .status-up {
-            background: rgba(35, 134, 54, .2);
-            color: #3fb950;
-            border: 1px solid rgba(35, 134, 54, .4);
-        }
-
-        .status-down {
-            background: rgba(218, 54, 51, .2);
-            color: #f85149;
-            border: 1px solid rgba(218, 54, 51, .4);
-        }
-        /* scanning badge */
-        .status-scan {
-            background: rgba(88, 166, 255, 0.08);
-            color: #58a6ff;
-            border: 1px solid rgba(88, 166, 255, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* moving scan light */
-        .status-scan::after {
-            content: "";
-            position: absolute;
+            position: sticky;
             top: 0;
-            left: -40%;
-            width: 40%;
-            height: 100%;
-            background: linear-gradient(
-                120deg,
-                transparent,
-                rgba(88,166,255,0.6),
-                transparent
-            );
-            animation: scan-glow 1.4s linear infinite;
+            z-index: 100;
+            background: rgba(7, 11, 16, .92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        @keyframes scan-glow {
-            from { left: -40%; }
-            to   { left: 120%; }
+        .brand {
+            font-family: var(--mono);
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--blue) !important;
+            text-decoration: none;
+            letter-spacing: .04em;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
         }
 
-        /* animated dots */
-        .scan-text::after {
-            content: "";
-            animation: dots 1.5s steps(3, end) infinite;
+        .brand-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--blue-glow);
+            border: 1px solid rgba(79, 163, 224, .35);
+            border-radius: 6px;
+            display: grid;
+            place-items: center;
+            color: var(--blue);
+            font-size: .9rem;
         }
 
-        @keyframes dots {
-            0%   { content: ""; }
-            33%  { content: "."; }
-            66%  { content: ".."; }
-            100% { content: "..."; }
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse-dot 2s ease-in-out infinite;
         }
 
-        /* scanning card glow */
-        .target-card.scanning {
-            position: relative;
-            animation: scan-pulse 2.2s ease-in-out infinite;
-            border-color: rgba(88, 166, 255, 0.6);
-        }
+        @keyframes pulse-dot {
 
-        @keyframes scan-pulse {
-            0% {
-                box-shadow:
-                    0 0 0 rgba(88,166,255,0.0),
-                    0 0 0 rgba(88,166,255,0.0);
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 8px var(--green);
             }
 
             50% {
-                box-shadow:
-                    0 0 18px rgba(88,166,255,0.25),
-                    0 0 35px rgba(88,166,255,0.15);
+                opacity: .5;
+                box-shadow: 0 0 3px var(--green);
+            }
+        }
+
+        .btn-add {
+            font-family: var(--mono);
+            font-size: .78rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            background: transparent;
+            border: 1px solid var(--blue);
+            color: var(--blue);
+            padding: .4rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+
+        .btn-add:hover {
+            background: var(--blue-glow);
+            box-shadow: 0 0 14px rgba(79, 163, 224, .2);
+            color: var(--text-bright);
+        }
+
+        /* ─── STATS BAR ──────────────────────────────────── */
+        .stats-bar {
+            display: flex;
+            gap: 1px;
+            background: var(--border);
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-cell {
+            flex: 1;
+            background: var(--bg2);
+            padding: .7rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            font-family: var(--mono);
+        }
+
+        .stat-label {
+            font-size: .65rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-up {
+            color: var(--green);
+        }
+
+        .stat-down {
+            color: var(--red);
+        }
+
+        .stat-scan {
+            color: var(--blue);
+        }
+
+        .stat-vuln {
+            color: var(--orange);
+        }
+
+        /* ─── GRID ───────────────────────────────────────── */
+        .target-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 20px;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─── CARD ───────────────────────────────────────── */
+        .target-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            transition: border-color .25s, transform .25s, box-shadow .25s;
+            overflow: hidden;
+        }
+
+        .target-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-bright);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, .4), 0 0 0 1px rgba(79, 163, 224, .07);
+        }
+
+        .target-card.scanning {
+            border-color: rgba(79, 163, 224, .4);
+            animation: card-scan 2.4s ease-in-out infinite;
+        }
+
+        @keyframes card-scan {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 rgba(79, 163, 224, 0);
+            }
+
+            50% {
+                box-shadow: 0 0 24px rgba(79, 163, 224, .15), 0 0 50px rgba(79, 163, 224, .06);
+            }
+        }
+
+        .card-accent {
+            height: 2px;
+            background: var(--border);
+            transition: background .3s;
+        }
+
+        .target-card.status-up .card-accent {
+            background: var(--green);
+        }
+
+        .target-card.status-down .card-accent {
+            background: var(--red);
+        }
+
+        .target-card.scanning .card-accent {
+            background: linear-gradient(90deg, transparent, var(--blue), transparent);
+            background-size: 200% 100%;
+            animation: sweep 1.6s linear infinite;
+        }
+
+        @keyframes sweep {
+            0% {
+                background-position: -100% 0;
             }
 
             100% {
-                box-shadow:
-                    0 0 0 rgba(88,166,255,0.0),
-                    0 0 0 rgba(88,166,255,0.0);
+                background-position: 200% 0;
             }
         }
 
-        .port-list {
+        /* ─── CARD HEADER ────────────────────────────────── */
+        .card-header {
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, .015);
+        }
+
+        .card-title {
+            font-family: var(--sans);
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-bright);
+            line-height: 1.2;
+        }
+
+        .card-url {
+            font-family: var(--mono);
+            font-size: .72rem;
+            color: var(--muted);
+            text-decoration: none;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .card-url:hover {
+            color: var(--blue);
+        }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        /* ─── STATUS BADGES ──────────────────────────────── */
+        .badge-status {
+            font-family: var(--mono);
+            font-size: .66rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .badge-up {
+            background: rgba(78, 201, 139, .1);
+            color: var(--green);
+            border: 1px solid rgba(78, 201, 139, .3);
+        }
+
+        .badge-down {
+            background: rgba(224, 82, 82, .1);
+            color: var(--red);
+            border: 1px solid rgba(224, 82, 82, .3);
+        }
+
+        .badge-scanning {
+            background: rgba(79, 163, 224, .08);
+            color: var(--blue);
+            border: 1px solid rgba(79, 163, 224, .35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .badge-scanning::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(79, 163, 224, .5), transparent);
+            animation: sweep 1.5s linear infinite;
+        }
+
+        .scan-dots::after {
+            content: '';
+            animation: dot-cycle 1.4s steps(4, end) infinite;
+        }
+
+        @keyframes dot-cycle {
+            0% {
+                content: '';
+            }
+
+            25% {
+                content: '.';
+            }
+
+            50% {
+                content: '..';
+            }
+
+            75% {
+                content: '...';
+            }
+        }
+
+        /* ─── ACTION BUTTONS ─────────────────────────────── */
+        .btn-icon {
+            width: 28px;
+            height: 28px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--muted);
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            font-size: .78rem;
+            transition: all .15s;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--border-bright);
+            color: var(--text);
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .dropdown-toggle-custom {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: .9rem;
+            transition: color .15s;
+        }
+
+        .dropdown-toggle-custom:hover {
+            color: var(--text);
+        }
+
+        /* ─── CARD BODY ──────────────────────────────────── */
+        .card-body {
+            padding: 14px 16px;
+            flex-grow: 1;
+        }
+
+        /* ─── PORT BADGES ────────────────────────────────── */
+        .port-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 15px;
+            gap: 5px;
+            margin-bottom: 12px;
         }
 
-        .port-badge {
-            background: #21262d;
-            border: 1px solid #30363d;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: .75rem;
-            font-family: 'JetBrains Mono', monospace;
+        .port-chip {
+            font-family: var(--mono);
+            font-size: .68rem;
+            background: rgba(79, 163, 224, .07);
+            border: 1px solid rgba(79, 163, 224, .2);
+            color: var(--blue);
+            padding: 3px 9px;
+            border-radius: 4px;
+            letter-spacing: .02em;
         }
 
-        .vuln-container {
+        /* ─── VULN BLOCKS ────────────────────────────────── */
+        .vuln-stack {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            max-height: 400px;
+            gap: 8px;
+            max-height: 380px;
             overflow-y: auto;
-            padding-right: 5px;
+            padding-right: 4px;
         }
 
-        .vuln-container::-webkit-scrollbar {
-            width: 6px
+        .vuln-stack::-webkit-scrollbar {
+            width: 4px;
         }
 
-        .vuln-container::-webkit-scrollbar-thumb {
-            background: #30363d;
+        .vuln-stack::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .vuln-stack::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .vuln-block {
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: var(--mono);
+            font-size: .75rem;
+            line-height: 1.55;
+        }
+
+        .vuln-block-title {
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .vuln-block-title .icon-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .vb-kritik {
+            background: rgba(224, 82, 82, .07);
+            border: 1px solid rgba(224, 82, 82, .2);
+            border-left: 3px solid var(--red);
+        }
+
+        .vb-kritik .vuln-block-title {
+            color: var(--red);
+        }
+
+        .vb-kritik .icon-dot {
+            background: var(--red);
+            box-shadow: 0 0 5px var(--red);
+        }
+
+        .vb-kritik .content {
+            color: #e8b4b4;
+        }
+
+        .vb-baslik {
+            background: rgba(155, 127, 232, .07);
+            border: 1px solid rgba(155, 127, 232, .2);
+            border-left: 3px solid var(--purple);
+        }
+
+        .vb-baslik .vuln-block-title {
+            color: var(--purple);
+        }
+
+        .vb-baslik .icon-dot {
+            background: var(--purple);
+        }
+
+        .vb-baslik .content {
+            color: #c9bef0;
+        }
+
+        .vb-mail {
+            background: rgba(224, 150, 62, .07);
+            border: 1px solid rgba(224, 150, 62, .2);
+            border-left: 3px solid var(--orange);
+        }
+
+        .vb-mail .vuln-block-title {
+            color: var(--orange);
+        }
+
+        .vb-mail .icon-dot {
+            background: var(--orange);
+        }
+
+        .vb-mail .content {
+            color: #e8d0aa;
+        }
+
+        .vb-ssl {
+            background: rgba(78, 201, 139, .07);
+            border: 1px solid rgba(78, 201, 139, .2);
+            border-left: 3px solid var(--green);
+        }
+
+        .vb-ssl .vuln-block-title {
+            color: var(--green);
+        }
+
+        .vb-ssl .icon-dot {
+            background: var(--green);
+        }
+
+        .vb-ssl .content {
+            color: #aee0c5;
+        }
+
+        .vb-web {
+            background: rgba(79, 163, 224, .07);
+            border: 1px solid rgba(79, 163, 224, .18);
+            border-left: 3px solid var(--blue);
+        }
+
+        .vb-web .vuln-block-title {
+            color: var(--blue);
+        }
+
+        .vb-web .icon-dot {
+            background: var(--blue);
+        }
+
+        .vb-web .content {
+            color: #a8cce0;
+        }
+
+        .vb-bilgi {
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--muted);
+        }
+
+        .vb-bilgi .vuln-block-title {
+            color: var(--muted);
+        }
+
+        .vb-bilgi .icon-dot {
+            background: var(--muted);
+        }
+
+        .vb-bilgi .content {
+            color: var(--text);
+        }
+
+        .badge-exploit {
+            font-size: .6rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            padding: 2px 6px;
+            background: rgba(224, 82, 82, .25);
+            color: var(--red);
+            border: 1px solid rgba(224, 82, 82, .4);
+            border-radius: 3px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+
+        .cve-link {
+            color: #e87070;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .cve-link:hover {
+            text-decoration: underline;
+            color: var(--red);
+        }
+
+        /* ─── CARD FOOTER ────────────────────────────────── */
+        .card-footer-strip {
+            padding: 7px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .time-label {
+            font-family: var(--mono);
+            font-size: .67rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ─── MODALS ─────────────────────────────────────── */
+        .modal-content {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .7);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+        }
+
+        .modal-title {
+            font-family: var(--sans);
+            font-weight: 700;
+            color: var(--text-bright);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border);
+        }
+
+        .form-control,
+        .form-select {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 6px;
+            font-family: var(--mono);
+            font-size: .85rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background: var(--bg2);
+            border-color: var(--blue);
+            color: var(--text-bright);
+            box-shadow: 0 0 0 3px rgba(79, 163, 224, .1);
+        }
+
+        .form-label {
+            font-size: .75rem;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-family: var(--mono);
+            margin-bottom: 6px;
+        }
+
+        .dropdown-menu {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+            font-size: .82rem;
+        }
+
+        .dropdown-item {
+            color: var(--text);
+            padding: 8px 14px;
+            transition: background .15s;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, .05);
+            color: var(--text-bright);
+        }
+
+        .dropdown-item.text-danger {
+            color: var(--red) !important;
+        }
+
+        .dropdown-divider {
+            border-color: var(--border);
+        }
+
+        .alert-error {
+            background: rgba(224, 82, 82, .08);
+            border: 1px solid rgba(224, 82, 82, .25);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-family: var(--mono);
+            font-size: .78rem;
+            color: #e8b4b4;
+            margin-bottom: 10px;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--muted);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: .3;
+        }
+
+        .empty-state h3 {
+            font-family: var(--mono);
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
             border-radius: 3px;
         }
 
-        #detailModal .target-card:hover {
-            transform: none;
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-bright);
         }
     </style>
 </head>
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#"><i class="fa-solid fa-tower-observation"></i> {{ app_name }}</a>
-            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addTargetModal">
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="#" class="brand">
+            <span class="brand-icon"><i class="fa-solid fa-tower-observation"></i></span>
+            {{ app_name }}
+        </a>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <span class="live-dot" title="Canlı izleme aktif"></span>
+            <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addTargetModal">
                 <i class="fa-solid fa-plus"></i> Yeni Hedef
             </button>
         </div>
     </nav>
 
-    <div class="target-grid">
-
-        {% for target in targets %}
-        
-        <div class="target-card {% if 'tara' in st or 'scan' in st %}scanning{% endif %}">
-            <div class="card-header">
+    <!-- STATS BAR -->
+        <div class="stats-bar">
+            <div class="stat-cell">
                 <div>
-                    <div style="font-weight:bold;color:white;font-size:1.1rem;">{{ target.name }}</div>
-                    <a href="{{ target.url }}" target="_blank"
-                        style="color:#8b949e;text-decoration:none;font-size:.85rem;">
-                        {{ target.url }}
-                    </a>
+                    <div class="stat-label">Toplam Hedef</div>
+                    <div class="stat-value" style="color:var(--text-bright)">{{ targets|length }}</div>
                 </div>
+            </div>
+            <div class="stat-cell">
+                <div>
+                    <div class="stat-label">Aktif</div>
+                    <div class="stat-value stat-up">
+                        {% set count = namespace(v=0) %}
+                        {% for t in targets %}{% if t.status and 'Aktif' in t.status %}{% set count.v = count.v + 1 %}{% endif %}{% endfor %}
+                        {{ count.v }}
+                    </div>
+                </div>
+            </div>
+            <div class="stat-cell">
+                <div>
+                    <div class="stat-label">Taranıyor</div>
+                    <div class="stat-value stat-scan">
+                        {% set count = namespace(v=0) %}
+                        {% for t in targets %}{% if t.status and 'Taranıyor' in t.status %}{% set count.v = count.v + 1 %}{% endif %}{% endfor %}
+                        {{ count.v }}
+                    </div>
+                </div>
+            </div>
+            <div class="stat-cell">
+                <div>
+                    <div class="stat-label">Hata / Down</div>
+                    <div class="stat-value stat-down">
+                        {% set count = namespace(v=0) %}
+                        {% for t in targets %}{% if t.status and 'Hata' in t.status %}{% set count.v = count.v + 1 %}{% endif %}{% endfor %}
+                        {{ count.v }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <div class="d-flex align-items-center gap-2">
+    <!-- TARGET GRID -->
+    <div class="target-grid">
+        {% for target in targets %}
+        {% set st = target.status or '' %}
+        {% set is_scanning = st.startswith('Taranıyor') %}
+        {% set is_up = st.startswith('Aktif') %}
+        {% set is_down = st.startswith('Hata') %}
 
-                    <button class="btn btn-sm btn-outline-secondary" title="Detay" onclick="openDetailFromCard(this)">
+        <div class="target-card
+            {% if is_scanning %}scanning
+            {% elif is_up %}status-up
+            {% elif is_down %}status-down
+            {% endif %}">
+
+            <div class="card-accent"></div>
+
+            <div class="card-header">
+                <div style="min-width:0;flex:1;">
+                    <div class="card-title">{{ target.name }}</div>
+                    <a href="{{ target.url }}" target="_blank" class="card-url">{{ target.url }}</a>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-icon" title="Detay" onclick="openDetail(this)">
                         <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
                     </button>
-                    
-                    {% if target.status and target.status.startswith("Taranıyor") %}
-                    <span class="status-badge status-scan">
-                        <span class="scan-text">SCANNING</span>
-                    </span>
-
-                    {% elif target.status and target.status.startswith("Aktif") %}
-                    <span class="status-badge status-up">UP</span>
-
-                    {% elif target.status and target.status.startswith("Hata") %}
-                    <span class="status-badge status-down">DOWN</span>
-
+                    {% if is_scanning %}
+                    <span class="badge-status badge-scanning"><span class="scan-dots">SCANNING</span></span>
+                    {% elif is_up %}
+                    <span class="badge-status badge-up">UP</span>
                     {% else %}
-                    <span class="status-badge status-down">DOWN</span>
+                    <span class="badge-status badge-down">DOWN</span>
                     {% endif %}
-
-
                     <div class="dropdown">
-                        <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                        <button class="dropdown-toggle-custom" data-bs-toggle="dropdown">
                             <i class="fa-solid fa-ellipsis-vertical"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-dark">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a class="dropdown-item" href="#"
                                     onclick="fillEditModal('{{ target.id }}','{{ target.name }}','{{ target.url }}')"
-                                    data-bs-toggle="modal" data-bs-target="#editTargetModal">Düzenle</a>
+                                    data-bs-toggle="modal" data-bs-target="#editTargetModal">
+                                    <i class="fa-solid fa-pen-to-square me-2" style="color:var(--blue)"></i>Düzenle
+                                </a>
                             </li>
                             <li>
-                                <form action="/delete/{{ target.id }}" method="post" onsubmit="return confirm('Sil?');"
-                                    class="m-0">
-                                    <button class="dropdown-item text-danger">Sil</button>
+                                <a class="dropdown-item" href="/download_report/{{ target.id }}">
+                                    <i class="fa-solid fa-file-pdf me-2" style="color:var(--red)"></i>PDF İndir
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <form action="/delete/{{ target.id }}" method="post"
+                                    onsubmit="return confirm('Bu hedef silinsin mi?');" class="m-0">
+                                    <button class="dropdown-item text-danger">
+                                        <i class="fa-solid fa-trash me-2"></i>Sil
+                                    </button>
                                 </form>
                             </li>
                         </ul>
                     </div>
-
                 </div>
             </div>
 
-            <div class="card-body p-3 flex-grow-1">
-
+            <div class="card-body">
                 {% if target.last_error %}
-                <div class="alert alert-danger p-2 mb-3" style="font-size:.8rem">
-                    <i class="fa-solid fa-triangle-exclamation"></i> {{ target.last_error }}
+                <div class="alert-error">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i>{{ target.last_error }}
                 </div>
                 {% endif %}
 
                 {% if target.open_ports %}
-                <div class="port-list">
+                <div class="port-row">
                     {% for port in target.open_ports.split(',') %}
-                    <span class="port-badge"><i class="fa-solid fa-plug"></i> {{ port }}</span>
+                    <span class="port-chip"><i class="fa-solid fa-plug me-1"></i>{{ port.strip() }}</span>
                     {% endfor %}
                 </div>
                 {% endif %}
 
                 {% if target.vulns %}
-                <div class="vuln-container">
-
+                <div class="vuln-stack">
                     {% for vuln_item in target.vulns.split('|') %}
-                    {% set clean_item = vuln_item
-                    | replace('p80:','')
-                    | replace('p443:','')
-                    | replace('p25:','')
-                    | replace('p8080:','')
-                    | replace('vulners:','')
-                    | replace('pDNS:','')
+                    {% set clean = vuln_item
+                    | replace('p80:','') | replace('p443:','')
+                    | replace('p25:','') | replace('p8080:','')
+                    | replace('vulners:','') | replace('pDNS:','')
                     | replace('[mail_sec]:','')
                     %}
 
                     {% if 'CVE-' in vuln_item or 'vulners' in vuln_item %}
-                    <div
-                        style="background:rgba(220,53,69,.1);border-left:4px solid #dc3545;padding:12px;border-radius:4px;">
-                        <strong style="color:#dc3545;display:block;margin-bottom:5px;">
+                    <div class="vuln-block vb-kritik">
+                        <div class="vuln-block-title">
+                            <span class="icon-dot"></span>
                             <i class="fa-solid fa-biohazard"></i> KRİTİK ZAFİYET
-                        </strong>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#eecbc4;">
-                            {{ clean_item
-                            | replace('CVE-','<a href="https://www.google.com/search?q=CVE-" target="_blank"
-                                style="color:#ff6b6b;font-weight:bold;text-decoration:underline;">CVE-')
-                                | replace('*EXPLOIT*','<span class="badge bg-danger">EXPLOIT VAR</span>')
-                                | replace('https://vulners.com','<br>🔗 ')
-                                | safe
-                                }}</a>
+                        </div>
+                        <div class="content">
+                            {{ clean
+                            | replace('CVE-','<a class="cve-link" href="https://www.google.com/search?q=CVE-" target="_blank">CVE-</a>')
+                            | replace('*EXPLOIT*','<span class="badge-exploit">EXPLOIT</span>')
+                            | replace('https://vulners.com','<br>↳ ')
+                            | safe }}
                         </div>
                     </div>
 
                     {% elif 'http-security-headers' in vuln_item|lower %}
-                    <div
-                        style="background:rgba(111,66,193,.1);border-left:4px solid #6f42c1;padding:12px;border-radius:4px;">
-                        <strong style="color:#a371f7;display:block;margin-bottom:5px;">
+                    <div class="vuln-block vb-baslik">
+                        <div class="vuln-block-title">
+                            <span class="icon-dot"></span>
                             <i class="fa-solid fa-shield-halved"></i> GÜVENLİK BAŞLIKLARI
-                        </strong>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#d0bfff;">
-                            {{ clean_item
+                        </div>
+                        <div class="content">
+                            {{ clean
                             | replace('[http-security-headers]:','')
-                            | replace('[http-security-headers]','')
-                            | replace('http-security-headers:','')
-                            | replace('Header:','<br>• <strong>Header:</strong>')
+                            | replace('Header:','<br>• <b>Header:</b>')
                             | replace('Description:','<br>&nbsp;&nbsp;Desc:')
-                            | safe
-                            }}
+                            | safe }}
                         </div>
                     </div>
-                    
+
                     {% elif '[spf]' in vuln_item or '[dmarc]' in vuln_item %}
-                    <div style="background:rgba(253, 126, 20, 0.1); border-left:4px solid #fd7e14; padding:12px; border-radius:4px;">
-                        <strong style="color:#fd7e14; display:block; margin-bottom:5px;">
-                            <i class="fa-solid fa-envelope-circle-check"></i> E-POSTA & DNS GÜVENLİĞİ
-                        </strong>
-                        <div style="font-family:'JetBrains Mono',monospace; font-size:.8rem; color:#dbdbdb;">
-                            {{ clean_item
-                            | replace('[spf]:', '<strong style="color:#fff"><i class="fa-solid fa-at"></i> SPF Kaydı:</strong>')
-                            | replace('[dmarc]:', '<strong style="color:#fff"><i class="fa-solid fa-shield-dog"></i> DMARC Kaydı:</strong>')
-                            | replace('EKSİK', '<span class="badge bg-danger">EKSİK</span>')
-                            | replace('BAŞARILI', '<span class="badge bg-success">BAŞARILI</span>')
-                            | safe
-                            }}
+                    <div class="vuln-block vb-mail">
+                        <div class="vuln-block-title">
+                            <span class="icon-dot"></span>
+                            <i class="fa-solid fa-envelope-circle-check"></i> E-POSTA & DNS
+                        </div>
+                        <div class="content">
+                            {{ clean
+                            | replace('[spf]:', '<b style="color:#fff">SPF:</b>')
+                            | replace('[dmarc]:', '<br><b style="color:#fff">DMARC:</b>')
+                            | replace('EKSİK', '<span class="badge-exploit">EKSİK</span>')
+                            | replace('BAŞARILI', '<span style="color:var(--green);font-weight:700">✓ BAŞARILI</span>')
+                            | safe }}
                         </div>
                     </div>
 
                     {% elif 'ssl-cert' in vuln_item %}
-                    <div
-                        style="background:rgba(25,135,84,.1);border-left:4px solid #198754;padding:12px;border-radius:4px;">
-                        <strong style="color:#20c997;display:block;margin-bottom:5px;">
+                    <div class="vuln-block vb-ssl">
+                        <div class="vuln-block-title">
+                            <span class="icon-dot"></span>
                             <i class="fa-solid fa-lock"></i> SSL SERTİFİKASI
-                        </strong>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#a3cfbb;">
-                            {{ clean_item | replace('[ssl-cert]:','') | safe }}
                         </div>
+                        <div class="content">{{ clean | replace('[ssl-cert]:','') | safe }}</div>
                     </div>
 
                     {% elif 'http-server' in vuln_item or 'http-title' in vuln_item %}
-                    <div
-                        style="background:rgba(13,202,240,.1);border-left:4px solid #0dcaf0;padding:12px;border-radius:4px;">
-                        <strong style="color:#0dcaf0;display:block;margin-bottom:5px;">
+                    <div class="vuln-block vb-web">
+                        <div class="vuln-block-title">
+                            <span class="icon-dot"></span>
                             <i class="fa-solid fa-server"></i> WEB ANALİZİ
-                        </strong>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#9eeaf9;">
-                            {{ clean_item
-                            | replace('[http-server-header]:','Sunucu:')
-                            | replace('[http-title]:','Başlık:')
-                            }}
+                        </div>
+                        <div class="content">
+                            {{ clean
+                            | replace('[http-server-header]:','Sunucu: ')
+                            | replace('[http-title]:','Başlık: ') }}
                         </div>
                     </div>
 
                     {% else %}
-                    <div
-                        style="background:rgba(255,255,255,.05);border-left:4px solid #6c757d;padding:12px;border-radius:4px;">
-                        <strong style="color:#adb5bd;display:block;margin-bottom:5px;">
-                            <i class="fa-solid fa-info-circle"></i> BİLGİ
-                        </strong>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#ced4da;">
-                            {{ clean_item }}
+                    <div class="vuln-block vb-bilgi">
+                        <div class="vuln-block-title">
+                            <span class="icon-dot"></span>
+                            <i class="fa-solid fa-circle-info"></i> BİLGİ
                         </div>
+                        <div class="content">{{ clean }}</div>
                     </div>
                     {% endif %}
 
                     {% endfor %}
                 </div>
                 {% endif %}
+            </div>
 
-                <div class="text-end mt-3 text-muted" style="font-size:.7rem">
+            <div class="card-footer-strip">
+                <span class="time-label">
                     <i class="fa-regular fa-clock"></i>
-                    {{ target.last_check.strftime('%H:%M:%S') if target.last_check else '-' }}
-                </div>
-
+                    {{ target.last_check.strftime('%H:%M:%S') if target.last_check else '—' }}
+                </span>
             </div>
         </div>
         {% endfor %}
+
+        {% if not targets %}
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fa-solid fa-tower-observation"></i></div>
+            <h3>Henüz hedef yok</h3>
+            <p>İzlemek istediğin URL'leri ekleyerek başla.</p>
+        </div>
+        {% endif %}
     </div>
 
+    <!-- ADD MODAL -->
     <div class="modal fade" id="addTargetModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Yeni Hedef</h5>
+                    <h5 class="modal-title"><i class="fa-solid fa-plus me-2" style="color:var(--blue)"></i>Yeni Hedef
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="/add" method="post">
-                    <div class="modal-body">
-                        <input type="text" name="name" class="form-control mb-2" placeholder="İsim" required>
-                        <input type="url" name="url" class="form-control" placeholder="URL" required>
+                    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
+                        <div>
+                            <label class="form-label">İsim</label>
+                            <input type="text" name="name" class="form-control" placeholder="örn: prodüksiyon sunucusu"
+                                required>
+                        </div>
+                        <div>
+                            <label class="form-label">URL</label>
+                            <input type="url" name="url" class="form-control" placeholder="https://..." required>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary">Ekle</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">İptal</button>
+                        <button class="btn btn-primary btn-sm">Ekle &amp; Tara</button>
                     </div>
                 </form>
             </div>
@@ -427,30 +1047,38 @@
 
     <!-- EDIT MODAL -->
     <div class="modal fade" id="editTargetModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Düzenle</h5>
+                    <h5 class="modal-title"><i class="fa-solid fa-pen-to-square me-2"
+                            style="color:var(--blue)"></i>Düzenle</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editForm" method="post">
-                    <div class="modal-body">
-                        <input type="text" id="editName" name="name" class="form-control mb-2" required>
-                        <input type="url" id="editUrl" name="url" class="form-control" required>
+                    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
+                        <div>
+                            <label class="form-label">İsim</label>
+                            <input type="text" id="editName" name="name" class="form-control" required>
+                        </div>
+                        <div>
+                            <label class="form-label">URL</label>
+                            <input type="url" id="editUrl" name="url" class="form-control" required>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-warning">Güncelle</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">İptal</button>
+                        <button class="btn btn-warning btn-sm">Güncelle</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- DETAY MODAL -->
+    <!-- DETAIL MODAL -->
     <div class="modal fade" id="detailModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content" style="background:#0d1117;border:1px solid #30363d;">
-                <div class="modal-header border-secondary">
+            <div class="modal-content">
+                <div class="modal-header">
                     <h5 class="modal-title" id="detailModalTitle"></h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -460,44 +1088,28 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-
     <script>
         function fillEditModal(id, name, url) {
             document.getElementById('editName').value = name;
             document.getElementById('editUrl').value = url;
-            document.getElementById('editForm').action = "/update/" + id;
+            document.getElementById('editForm').action = '/update/' + id;
         }
 
-        function openDetailFromCard(btn) {
-
-            const card = btn.closest(".target-card");
-
-            const title = card.querySelector(".card-header div div").innerText;
-            const body = card.querySelector(".card-body").innerHTML;
-
-            document.getElementById("detailModalTitle").innerText = title;
-            document.getElementById("detailModalBody").innerHTML = body;
-
-            const modal = new bootstrap.Modal(
-                document.getElementById("detailModal")
-            );
-            modal.show();
+        function openDetail(btn) {
+            const card = btn.closest('.target-card');
+            const title = card.querySelector('.card-title').innerText;
+            const body = card.querySelector('.card-body').innerHTML;
+            document.getElementById('detailModalTitle').innerText = title;
+            document.getElementById('detailModalBody').innerHTML = body;
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
 
-        /* Detay veya başka modal açıkken refresh atmasın */
         setInterval(() => {
-
-            const modalOpen = document.querySelector('.modal.show');
-            const offcanvasOpen = document.querySelector('.offcanvas.show');
-
-            if (!modalOpen && !offcanvasOpen) {
+            if (!document.querySelector('.modal.show')) {
                 window.location.reload();
             }
-
         }, 10000);
     </script>
-
 </body>
 
 </html>
-```
