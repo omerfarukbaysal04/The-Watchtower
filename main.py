@@ -74,8 +74,8 @@ async def update_target(target_id: int, name: str = Form(...), url: str = Form(.
     return RedirectResponse(url="/", status_code=303)
 
 @app.get("/download_report/{target_id}")
-async def download_report(target_id: int, db: Session = Depends(get_session)): # 1. DÜZELTME: get_session oldu
-    # 2. DÜZELTME: SQLModel'e uygun veri çekme yöntemi
+async def download_report(target_id: int, db: Session = Depends(get_session)): 
+    
     target = db.get(Target, target_id)
     
     if not target:

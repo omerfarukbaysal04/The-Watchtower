@@ -51,8 +51,3 @@ class DNSSecurityScanner:
         dmarc_result = self.check_dmarc()
         
         return f"{spf_result}<br><br>{dmarc_result}" #spf ve dmarc sonuçlarını alt alta gösterecek şekilde ekle
-
-# Sadece bu dosyayı test etmek için:
-if __name__ == "__main__":
-    scanner = DNSSecurityScanner("https://www.google.com")
-    print(scanner.run())
