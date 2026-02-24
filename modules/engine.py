@@ -8,7 +8,7 @@ from modules.recon_scanner import ReconScanner
 from modules.models import Target
 from urllib.parse import urlparse
 from modules.reporter import send_telegram_alert
-
+from modules.subdomain_scanner import SubdomainScanner
 
 
 def get_hostname(url):
@@ -92,6 +92,16 @@ async def process_single_target(target_id):
                 else:
                     target.last_error = str(scan_res)
 
+        # Subdomain Keşfi
+            subdomain_scanner = SubdomainScanner(target.url)
+            subdomain_result = await asyncio.to_thread(subdomain_scanner.run)       
+            if subdomain_result:
+
+                if target.vulns:
+                        target.vulns = target.vulns + " | " + subdomain_result
+                else:
+                        target.vulns = subdomain_result
+
         except Exception as e:
             target.status = "Hata 💥"
             target.last_error = str(e)
@@ -107,20 +117,34 @@ async def process_single_target(target_id):
         print(f"✅ [TARAMA BİTTİ] {target.name}")
 
 async def run_scanner_loop():
-    print("🚀 [MOTOR] Paralel Tarama Motoru (v2.0 Fix) Devrede!")
+    print("🚀 [MOTOR] Scheduled Tarama Motoru Devrede!")
     
     while True:
         try:
             with Session(engine) as db:
                 targets = db.exec(select(Target)).all()
-                target_ids = [t.id for t in targets]
             
-            if target_ids:
-                await asyncio.gather(*(process_single_target(t_id) for t_id in target_ids))
-            
-            print("💤 [MOTOR] Mola veriliyor (20 saniye)...")
-            await asyncio.sleep(20) 
+            now = datetime.now()
+            taranacaklar = []
+
+            for target in targets:
+                # Hiç taranmamışsa hemen tara
+                if target.last_check is None:
+                    taranacaklar.append(target.id)
+                    continue
+                
+                # interval süresi geçmişse tara (dakika cinsinden)
+                gecen_dakika = (now - target.last_check).total_seconds() / 60
+                if gecen_dakika >= target.interval:
+                    taranacaklar.append(target.id)
+
+            if taranacaklar:
+                print(f"🎯 [MOTOR] {len(taranacaklar)} hedef taranacak.")
+                await asyncio.gather(*(process_single_target(t_id) for t_id in taranacaklar))
+            else:
+                print("💤 [MOTOR] Taranacak hedef yok.")
 
         except Exception as e:
             print(f"💥 [GENEL MOTOR HATASI] {e}")
-            await asyncio.sleep(5)
+
+        await asyncio.sleep(60)  # Her dakika kontrol et

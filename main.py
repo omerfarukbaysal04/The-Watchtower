@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from fastapi import Form
+from modules.engine import run_scanner_loop, process_single_target
 import os
 import asyncio 
 from modules.engine import run_scanner_loop 
@@ -93,12 +94,14 @@ async def add_target(
     request: Request,
     name: str = Form(...),
     url: str = Form(...),
+    interval: int = Form(60),
     db: Session = Depends(get_session)
 ):
-    new_target = Target(name=name, url=url)
+    new_target = Target(name=name, url=url, interval=interval)
     db.add(new_target)
     db.commit()
     db.refresh(new_target)
+    asyncio.create_task(process_single_target(new_target.id))
     return RedirectResponse(url="/", status_code=303)
 
 
@@ -119,16 +122,21 @@ async def update_target(
     request: Request,
     target_id: int,
     name: str = Form(...),
-    url: str = Form(...)
+    url: str = Form(...),
+    interval: int = Form(...)
 ):
     with Session(engine) as db:
         target = db.get(Target, target_id)
         if target:
             target.name = name
             target.url = url
+            target.interval = interval
+            target.last_check = None  # ← bunu ekle
+            target.status = "Bekleniyor"  # ← bunu da güncelle
             target.status = "Güncellendi ⏳"
             db.add(target)
             db.commit()
+    asyncio.create_task(process_single_target(target_id))  # ← hemen tara
     return RedirectResponse(url="/", status_code=303)
 
 
@@ -150,3 +158,15 @@ async def download_report(request: Request, target_id: int, db: Session = Depend
         filename=f"The_Watchtower_{target.name}_Raporu.pdf",
         media_type='application/pdf'
     )
+
+@app.post("/scan_now/{target_id}")
+@login_required
+async def scan_now(request: Request, target_id: int):
+    with Session(engine) as db:
+        target = db.get(Target, target_id)
+        if target:
+            target.last_check = None
+            db.add(target)
+            db.commit()
+    asyncio.create_task(process_single_target(target_id))
+    return RedirectResponse(url="/", status_code=303)

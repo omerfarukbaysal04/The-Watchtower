@@ -254,6 +254,7 @@ def create_target_report(target_name, target_url, status,
     # ─────────────────────────────────────────
     other_bulgular = []
     spf_dmarc = []
+    subdomain_bulgular = []
 
     if vulns_string:
         for bulgu in vulns_string.split("|"):
@@ -268,9 +269,11 @@ def create_target_report(target_name, target_url, status,
 
             if "SPF:" in clean or "DMARC:" in clean:
                 spf_dmarc.append(clean.strip())
+            elif "[subdomain]:" in clean or "aktif subdomain" in clean.lower():
+                subdomain_bulgular.append(clean.replace("[subdomain]:", "").strip())
             elif any(x in clean for x in ["CVE","NGINX:","EDB-ID","PACKETSTORM",
                                             "githubexploit","1337DAY"]):
-                pass  # CVE'ler ayrı tabloya gidecek
+                pass
             elif len(clean) > 5:
                 other_bulgular.append(clean.strip())
 
@@ -283,9 +286,37 @@ def create_target_report(target_name, target_url, status,
                 if satir and len(satir) > 3:
                     story.append(Paragraph(f"• {satir}", S_BODY))
         story.append(Spacer(1, 5*mm))
+    
+    # ─────────────────────────────────────────
+    # 3. SUBDOMAIN KEŞFİ
+    # ─────────────────────────────────────────
+    if subdomain_bulgular:
+        story.append(section_header("[ SUBDOMAIN ]", "SUBDOMAIN KESFI", C_BLUE))
+        story.append(Spacer(1, 2*mm))
+        for bulgu in subdomain_bulgular:
+            subdomains = [s.strip() for s in bulgu.replace("aktif subdomain bulundu:", "").split(",") if s.strip()]
+            sub_data = []
+            cols = 2
+            for i in range(0, len(subdomains), cols):
+                row = subdomains[i:i+cols]
+                while len(row) < cols:
+                    row.append("")
+                sub_data.append([Paragraph(temizle(s), S_MONO) for s in row])
+            
+            if sub_data:
+                sub_t = Table(sub_data, colWidths=[W/cols]*cols)
+                sub_t.setStyle(TableStyle([
+                    ("BACKGROUND",    (0,0), (-1,-1), C_CARD),
+                    ("TOPPADDING",    (0,0), (-1,-1), 5),
+                    ("BOTTOMPADDING", (0,0), (-1,-1), 5),
+                    ("LEFTPADDING",   (0,0), (-1,-1), 10),
+                    ("GRID",          (0,0), (-1,-1), 0.3, C_BORDER),
+                ]))
+                story.append(sub_t)
+        story.append(Spacer(1, 5*mm))
 
     # ─────────────────────────────────────────
-    # 3. E-POSTA GÜVENLİĞİ
+    # 4. E-POSTA GÜVENLİĞİ
     # ─────────────────────────────────────────
     if spf_dmarc:
         story.append(section_header("[ MAIL ]", "E-POSTA VE DNS GUVENLIGI", C_ORANGE))

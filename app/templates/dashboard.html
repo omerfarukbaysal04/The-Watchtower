@@ -7,6 +7,8 @@
     <title>{{ app_name }} - Komuta Merkezi</title>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗼</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap"
@@ -765,6 +767,33 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--border-bright);
         }
+
+        .card-footer-strip {
+            padding: 8px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-btn {
+            width: 30px; height: 30px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--muted);
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            font-size: .8rem;
+            text-decoration: none;
+            transition: all .15s;
+        }
+        .footer-btn:hover         { border-color: var(--border-bright); color: var(--text); }
+        .footer-btn-green:hover   { border-color: var(--green); color: var(--green); background: rgba(78,201,139,.08); }
+        .footer-btn-blue:hover    { border-color: var(--blue);  color: var(--blue);  background: rgba(79,163,224,.08); }
+        .footer-btn-red:hover     { border-color: var(--red);   color: var(--red);   background: rgba(224,82,82,.08); }
+
     </style>
 </head>
 
@@ -883,10 +912,17 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a class="dropdown-item" href="#"
-                                    onclick="fillEditModal('{{ target.id }}','{{ target.name }}','{{ target.url }}')"
+                                    onclick="fillEditModal('{{ target.id }}','{{ target.name }}','{{ target.url }}','{{ target.interval }}')"
                                     data-bs-toggle="modal" data-bs-target="#editTargetModal">
                                     <i class="fa-solid fa-pen-to-square me-2" style="color:var(--blue)"></i>Düzenle
                                 </a>
+                            </li>
+                            <li>
+                                <form action="/scan_now/{{ target.id }}" method="post" class="m-0">
+                                    <button class="dropdown-item">
+                                        <i class="fa-solid fa-rotate me-2" style="color:var(--green)"></i>Şimdi Tara
+                                    </button>
+                                </form>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="/download_report/{{ target.id }}">
@@ -1002,6 +1038,17 @@
                         </div>
                     </div>
 
+                    {% elif '[subdomain]' in vuln_item %}
+                    <div class="vuln-block vb-web">
+                        <div class="vuln-block-title">
+                            <span class="icon-dot"></span>
+                            <i class="fa-solid fa-sitemap"></i> SUBDOMAIN KEŞFİ
+                        </div>
+                        <div class="content">
+                            {{ clean | replace('[subdomain]:','') }}
+                        </div>
+                    </div>
+
                     {% else %}
                     <div class="vuln-block vb-bilgi">
                         <div class="vuln-block-title">
@@ -1022,6 +1069,35 @@
                     <i class="fa-regular fa-clock"></i>
                     {{ target.last_check.strftime('%H:%M:%S') if target.last_check else '—' }}
                 </span>
+            
+                <div style="display:flex;gap:6px;">
+                    <!-- Düzenle -->
+                    <button class="footer-btn"
+                        onclick="fillEditModal('{{ target.id }}','{{ target.name }}','{{ target.url }}','{{ target.interval }}')"
+                        data-bs-toggle="modal" data-bs-target="#editTargetModal" title="Düzenle">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+            
+                    <!-- Şimdi Tara -->
+                    <form action="/scan_now/{{ target.id }}" method="post" class="m-0">
+                        <button class="footer-btn footer-btn-green" type="submit" title="Şimdi Tara">
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
+                    </form>
+            
+                    <!-- PDF İndir -->
+                    <a href="/download_report/{{ target.id }}" class="footer-btn footer-btn-blue" title="PDF İndir">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </a>
+            
+                    <!-- Sil -->
+                    <form action="/delete/{{ target.id }}" method="post" onsubmit="return confirm('Bu hedef silinsin mi?');"
+                        class="m-0">
+                        <button class="footer-btn footer-btn-red" type="submit" title="Sil">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -1048,12 +1124,15 @@
                     <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
                         <div>
                             <label class="form-label">İsim</label>
-                            <input type="text" name="name" class="form-control" placeholder="örn: prodüksiyon sunucusu"
-                                required>
+                            <input type="text" name="name" class="form-control" placeholder="örn: prodüksiyon sunucusu" required>
                         </div>
                         <div>
                             <label class="form-label">URL</label>
                             <input type="url" name="url" class="form-control" placeholder="https://..." required>
+                        </div>
+                        <div>
+                            <label class="form-label">Tarama Aralığı (Dakika)</label>
+                            <input type="number" name="interval" class="form-control" min="1" max="720" value="60" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1076,13 +1155,19 @@
                 </div>
                 <form id="editForm" method="post">
                     <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
-                        <div>
-                            <label class="form-label">İsim</label>
-                            <input type="text" id="editName" name="name" class="form-control" required>
-                        </div>
-                        <div>
-                            <label class="form-label">URL</label>
-                            <input type="url" id="editUrl" name="url" class="form-control" required>
+                        <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
+                            <div>
+                                <label class="form-label">İsim</label>
+                                <input type="text" id="editName" name="name" class="form-control" required>
+                            </div>
+                            <div>
+                                <label class="form-label">URL</label>
+                                <input type="url" id="editUrl" name="url" class="form-control" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Tarama Aralığı (Dakika)</label>
+                                <input type="number" id="editInterval" name="interval" class="form-control" min="1" max="720" required>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1109,11 +1194,12 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script>
-        function fillEditModal(id, name, url) {
-            document.getElementById('editName').value = name;
-            document.getElementById('editUrl').value = url;
-            document.getElementById('editForm').action = '/update/' + id;
-        }
+        function fillEditModal(id, name, url, interval) {
+                document.getElementById('editName').value = name;
+                document.getElementById('editUrl').value = url;
+                document.getElementById('editInterval').value = interval;
+                document.getElementById('editForm').action = '/update/' + id;
+            }
 
         function openDetail(btn) {
             const card = btn.closest('.target-card');
