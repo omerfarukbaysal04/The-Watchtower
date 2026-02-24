@@ -8,3 +8,4 @@ pyyaml
 python-nmap
 dnspython
 reportlab
+itsdangerous

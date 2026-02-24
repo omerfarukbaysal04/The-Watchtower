@@ -778,9 +778,29 @@
         </a>
         <div style="display:flex;align-items:center;gap:12px;">
             <span class="live-dot" title="Canlı izleme aktif"></span>
-            <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addTargetModal">
-                <i class="fa-solid fa-plus"></i> Yeni Hedef
-            </button>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addTargetModal">
+                    <i class="fa-solid fa-plus"></i> Yeni Hedef
+                </button>
+                <a href="/logout" style="
+                    font-family: var(--mono);
+                    font-size: .78rem;
+                    font-weight: 700;
+                    letter-spacing: .04em;
+                    background: transparent;
+                    border: 1px solid #e05252;
+                    color: #e05252;
+                    padding: .4rem 1rem;
+                    border-radius: 6px;
+                    text-decoration: none;
+                    transition: all .2s;
+                    display:flex;
+                    align-items:center;
+                    gap:.4rem;
+                " onmouseover="this.style.background='rgba(224,82,82,.1)'" onmouseout="this.style.background='transparent'">
+                    <i class="fa-solid fa-right-from-bracket"></i> Çıkış
+                </a>
+            </div>
         </div>
     </nav>
 

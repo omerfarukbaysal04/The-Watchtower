@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Watchtower — Giriş</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #070b10;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            font-family: 'Space Mono', monospace;
+            color: #a8c0d0;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(#1e2d3d 1px, transparent 1px),
+                linear-gradient(90deg, #1e2d3d 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: .2;
+            pointer-events: none;
+        }
+
+        .login-box {
+            position: relative;
+            background: #0f1620;
+            border: 1px solid #1e2d3d;
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4fa3e0, transparent);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(79, 163, 224, .1);
+            border: 1px solid rgba(79, 163, 224, .3);
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 12px;
+            font-size: 1.4rem;
+        }
+
+        .brand h1 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #4fa3e0;
+            letter-spacing: .06em;
+        }
+
+        .brand p {
+            font-size: .72rem;
+            color: #4a6070;
+            margin-top: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: .68rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #4a6070;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            background: #0d1117;
+            border: 1px solid #1e2d3d;
+            border-radius: 6px;
+            padding: 10px 14px;
+            color: #daeaf5;
+            font-family: 'Space Mono', monospace;
+            font-size: .85rem;
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #4fa3e0;
+            box-shadow: 0 0 0 3px rgba(79, 163, 224, .1);
+        }
+
+        .btn-login {
+            width: 100%;
+            margin-top: 24px;
+            padding: 11px;
+            background: transparent;
+            border: 1px solid #4fa3e0;
+            border-radius: 6px;
+            color: #4fa3e0;
+            font-family: 'Space Mono', monospace;
+            font-size: .85rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .btn-login:hover {
+            background: rgba(79, 163, 224, .1);
+            box-shadow: 0 0 16px rgba(79, 163, 224, .2);
+            color: #daeaf5;
+        }
+
+        .error-msg {
+            background: rgba(224, 82, 82, .08);
+            border: 1px solid rgba(224, 82, 82, .25);
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: .78rem;
+            color: #e8b4b4;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-box">
+        <div class="brand">
+            <div class="brand-icon">🗼</div>
+            <h1>THE WATCHTOWER</h1>
+            <p>Komuta merkezine giriş yap</p>
+        </div>
+
+        {% if error %}
+        <div class="error-msg">
+            ⚠ {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" action="/login">
+            <div class="form-group">
+                <label>Kullanıcı Adı</label>
+                <input type="text" name="username" autocomplete="username" autofocus required>
+            </div>
+            <div class="form-group">
+                <label>Şifre</label>
+                <input type="password" name="password" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn-login">GİRİŞ YAP →</button>
+        </form>
+    </div>
+</body>
+
+</html>
