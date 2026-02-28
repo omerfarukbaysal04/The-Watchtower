@@ -218,3 +218,69 @@ async def download_history_report(request: Request, history_id: int, db: Session
         filename=f"The_Watchtower_{target.name}_{tarih}.pdf",
         media_type='application/pdf'
     )
+
+@app.get("/compare/{history_id}")
+@login_required
+async def compare_history(request: Request, history_id: int, db: Session = Depends(get_session)):
+    from modules.models import ScanHistory
+    from fastapi.responses import JSONResponse
+
+    current = db.get(ScanHistory, history_id)
+    if not current:
+        return JSONResponse({"error": "Kayıt bulunamadı."})
+
+    # Bir önceki taramayı bul
+    previous = db.exec(
+        select(ScanHistory)
+        .where(ScanHistory.target_id == current.target_id)
+        .where(ScanHistory.id < current.id)
+        .order_by(ScanHistory.id.desc())
+    ).first()
+
+    if not previous:
+        return JSONResponse({"error": "Karşılaştırılacak önceki tarama yok."})
+
+    # Port karşılaştırması
+    def parse_ports(port_str):
+        if not port_str:
+            return set()
+        return set(p.strip() for p in port_str.split(",") if p.strip())
+
+    current_ports  = parse_ports(current.open_ports)
+    previous_ports = parse_ports(previous.open_ports)
+
+    yeni_portlar    = list(current_ports - previous_ports)
+    kapanan_portlar = list(previous_ports - current_ports)
+
+    # CVE karşılaştırması
+    def parse_cves(vuln_str):
+        if not vuln_str:
+            return set()
+        cves = set()
+        for item in vuln_str.split("|"):
+            for word in item.split():
+                if "CVE-" in word or "NGINX:CVE" in word:
+                    cves.add(word.strip())
+        return cves
+
+    current_cves  = parse_cves(current.vulns)
+    previous_cves = parse_cves(previous.vulns)
+
+    yeni_cveler    = list(current_cves - previous_cves)
+    kapanan_cveler = list(previous_cves - current_cves)
+
+    # Durum değişimi
+    durum_degisti = current.status != previous.status
+
+    return JSONResponse({
+        "current_date":  current.scanned_at.strftime("%d.%m.%Y %H:%M"),
+        "previous_date": previous.scanned_at.strftime("%d.%m.%Y %H:%M"),
+        "yeni_portlar":    yeni_portlar,
+        "kapanan_portlar": kapanan_portlar,
+        "yeni_cveler":     yeni_cveler,
+        "kapanan_cveler":  kapanan_cveler,
+        "durum_degisti":   durum_degisti,
+        "onceki_durum":    previous.status,
+        "yeni_durum":      current.status,
+        "degisiklik_var":  bool(yeni_portlar or kapanan_portlar or yeni_cveler or kapanan_cveler or durum_degisti)
+    })

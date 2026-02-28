@@ -352,6 +352,48 @@
             background: var(--border);
             border-radius: 3px;
         }
+
+        .diff-row { display: none; }
+        .diff-row.open { display: table-row; }
+
+        .diff-cell {
+            padding: 12px 16px;
+            background: rgba(0,0,0,.25);
+        }
+
+        .diff-section {
+            margin-bottom: 10px;
+            font-family: var(--mono);
+            font-size: .75rem;
+        }
+
+        .diff-title {
+            font-size: .65rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .diff-item {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 2px;
+            font-size: .72rem;
+        }
+
+        .diff-new     { background: rgba(78,201,139,.12); color: var(--green); border: 1px solid rgba(78,201,139,.3); }
+        .diff-removed { background: rgba(224,82,82,.12);  color: var(--red);   border: 1px solid rgba(224,82,82,.3); }
+        .diff-neutral { background: rgba(79,163,224,.12); color: var(--blue);  border: 1px solid rgba(79,163,224,.3); }
+
+        .no-change {
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: .75rem;
+            font-style: italic;
+        }
+
     </style>
 </head>
 
@@ -466,6 +508,10 @@
                                 <button class="detail-btn" onclick="toggleDetail('detail-{{ h.id }}')">
                                     Göster
                                 </button>
+                                <button class="detail-btn" style="color:var(--purple);border-color:rgba(155,127,232,.3);"
+                                    onclick="loadDiff({{ h.id }}, this)">
+                                    <i class="fa-solid fa-code-compare"></i> Karşılaştır
+                                </button>
                                 <a href="/download_report/history/{{ h.id }}" class="detail-btn"
                                     style="text-decoration:none;color:var(--red);border-color:rgba(224,82,82,.3);">
                                     <i class="fa-solid fa-file-pdf"></i>
@@ -480,6 +526,13 @@
                     <tr class="detail-row" id="detail-{{ h.id }}">
                         <td colspan="6" class="detail-cell">{% if h.last_error %}HATA: {{ h.last_error }}{% else %}{{
                             h.vulns | replace(' | ', '\n') }}{% endif %}</td>
+                    </tr>
+                    <tr class="diff-row" id="diff-{{ h.id }}">
+                        <td colspan="6" class="diff-cell">
+                            <div id="diff-content-{{ h.id }}">
+                                <span style="color:var(--muted);font-family:var(--mono);font-size:.75rem;">Yükleniyor...</span>
+                            </div>
+                        </td>
                     </tr>
                     {% endif %}
                     {% endfor %}
@@ -497,9 +550,86 @@
 
     <script>
         function toggleDetail(id) {
-            const row = document.getElementById(id);
-            row.classList.toggle('open');
-        }
+                const row = document.getElementById(id);
+                row.classList.toggle('open');
+            }
+
+            async function loadDiff(historyId, btn) {
+                const diffRow = document.getElementById('diff-' + historyId);
+                const diffContent = document.getElementById('diff-content-' + historyId);
+
+                // Toggle
+                if (diffRow.classList.contains('open')) {
+                    diffRow.classList.remove('open');
+                    return;
+                }
+
+                diffRow.classList.add('open');
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('/compare/' + historyId);
+                    const data = await res.json();
+
+                    if (data.error) {
+                        diffContent.innerHTML = `<span class="no-change">${data.error}</span>`;
+                        return;
+                    }
+
+                    if (!data.degisiklik_var) {
+                        diffContent.innerHTML = `<span class="no-change">✓ Önceki taramayla fark yok (${data.previous_date})</span>`;
+                        return;
+                    }
+
+                    let html = `<div style="font-family:var(--mono);font-size:.7rem;color:var(--muted);margin-bottom:10px;">
+            Karşılaştırma: <b style="color:var(--text)">${data.previous_date}</b> → <b style="color:var(--text)">${data.current_date}</b>
+        </div>`;
+
+                    if (data.durum_degisti) {
+                        html += `<div class="diff-section">
+                <div class="diff-title">Durum Değişimi</div>
+                <span class="diff-item diff-removed">${data.onceki_durum}</span>
+                <span style="color:var(--muted);font-size:.8rem;margin:0 4px;">→</span>
+                <span class="diff-item diff-new">${data.yeni_durum}</span>
+            </div>`;
+                    }
+
+                    if (data.yeni_portlar.length > 0) {
+                        html += `<div class="diff-section">
+                <div class="diff-title">+ Yeni Açılan Portlar</div>
+                ${data.yeni_portlar.map(p => `<span class="diff-item diff-new">+ ${p}</span>`).join('')}
+            </div>`;
+                    }
+
+                    if (data.kapanan_portlar.length > 0) {
+                        html += `<div class="diff-section">
+                <div class="diff-title">- Kapanan Portlar</div>
+                ${data.kapanan_portlar.map(p => `<span class="diff-item diff-removed">- ${p}</span>`).join('')}
+            </div>`;
+                    }
+
+                    if (data.yeni_cveler.length > 0) {
+                        html += `<div class="diff-section">
+                <div class="diff-title">+ Yeni Tespit Edilen CVE</div>
+                ${data.yeni_cveler.map(c => `<span class="diff-item diff-new">+ ${c}</span>`).join('')}
+            </div>`;
+                    }
+
+                    if (data.kapanan_cveler.length > 0) {
+                        html += `<div class="diff-section">
+                <div class="diff-title">- Artık Tespit Edilmeyen CVE</div>
+                ${data.kapanan_cveler.map(c => `<span class="diff-item diff-removed">- ${c}</span>`).join('')}
+            </div>`;
+                    }
+
+                    diffContent.innerHTML = html;
+
+                } catch (e) {
+                    diffContent.innerHTML = `<span class="no-change">Hata oluştu.</span>`;
+                } finally {
+                    btn.disabled = false;
+                }
+            }
     </script>
 </body>
 
