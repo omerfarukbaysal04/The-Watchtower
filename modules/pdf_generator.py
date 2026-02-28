@@ -1,3 +1,4 @@
+import re
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
@@ -294,7 +295,8 @@ def create_target_report(target_name, target_url, status,
         story.append(section_header("[ SUBDOMAIN ]", "SUBDOMAIN KESFI", C_BLUE))
         story.append(Spacer(1, 2*mm))
         for bulgu in subdomain_bulgular:
-            subdomains = [s.strip() for s in bulgu.replace("aktif subdomain bulundu:", "").split(",") if s.strip()]
+            temiz = re.sub(r'^\d+\s*', '', bulgu)  
+            subdomains = [s.strip() for s in temiz.replace("aktif subdomain bulundu:", "").split(",") if s.strip()]
             sub_data = []
             cols = 2
             for i in range(0, len(subdomains), cols):

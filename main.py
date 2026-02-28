@@ -170,3 +170,51 @@ async def scan_now(request: Request, target_id: int):
             db.commit()
     asyncio.create_task(process_single_target(target_id))
     return RedirectResponse(url="/", status_code=303)
+
+@app.get("/history/{target_id}", response_class=HTMLResponse)
+@login_required
+async def target_history(request: Request, target_id: int, db: Session = Depends(get_session)):
+    from modules.models import ScanHistory
+    
+    target = db.get(Target, target_id)
+    if not target:
+        return RedirectResponse(url="/", status_code=302)
+    
+    history = db.exec(
+        select(ScanHistory)
+        .where(ScanHistory.target_id == target_id)
+        .order_by(ScanHistory.scanned_at.desc())
+    ).all()
+    
+    return templates.TemplateResponse("history.html", {
+        "request": request,
+        "target": target,
+        "history": history,
+        "app_name": "The Watchtower"
+    })
+
+@app.get("/download_report/history/{history_id}")
+@login_required
+async def download_history_report(request: Request, history_id: int, db: Session = Depends(get_session)):
+    from modules.models import ScanHistory
+    
+    history = db.get(ScanHistory, history_id)
+    if not history:
+        return {"error": "Kayıt bulunamadı."}
+    
+    target = db.get(Target, history.target_id)
+    
+    pdf_path = create_target_report(
+        target_name=target.name if target else "Bilinmiyor",
+        target_url=target.url if target else "",
+        status=history.status,
+        open_ports=history.open_ports,
+        vulns_string=history.vulns
+    )
+    
+    tarih = history.scanned_at.strftime("%Y%m%d_%H%M")
+    return FileResponse(
+        path=pdf_path,
+        filename=f"The_Watchtower_{target.name}_{tarih}.pdf",
+        media_type='application/pdf'
+    )

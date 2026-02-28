@@ -9,6 +9,7 @@ from modules.models import Target
 from urllib.parse import urlparse
 from modules.reporter import send_telegram_alert
 from modules.subdomain_scanner import SubdomainScanner
+from modules.models import Target, ScanHistory
 
 
 def get_hostname(url):
@@ -114,7 +115,32 @@ async def process_single_target(target_id):
         target.last_check = datetime.now()
         db.add(target)
         db.commit()
-        print(f"✅ [TARAMA BİTTİ] {target.name}")
+
+        with Session(engine) as history_db:
+            # Son 30 kaydı tut, fazlasını sil
+            gecmis = history_db.exec(
+                select(ScanHistory)
+                .where(ScanHistory.target_id == target_id)
+                .order_by(ScanHistory.scanned_at.desc())
+            ).all()
+            
+            if len(gecmis) >= 30:
+                silinecekler = gecmis[29:]
+                for eski in silinecekler:
+                    history_db.delete(eski)
+
+            yeni_kayit = ScanHistory(
+                target_id=target_id,
+                status=target.status,
+                open_ports=target.open_ports,
+                vulns=target.vulns,
+                ssl_days=target.ssl_days,
+                last_error=target.last_error
+            )
+            history_db.add(yeni_kayit)
+            history_db.commit()
+
+    print(f"✅ [TARAMA BİTTİ] {target.name}")
 
 async def run_scanner_loop():
     print("🚀 [MOTOR] Scheduled Tarama Motoru Devrede!")

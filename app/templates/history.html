@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ target.name }} — Tarama Geçmişi</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #070b10;
+            --bg2: #0d1117;
+            --card: #0f1620;
+            --border: #1e2d3d;
+            --border-b: #2a3f55;
+            --blue: #4fa3e0;
+            --red: #e05252;
+            --orange: #e0963e;
+            --green: #4ec98b;
+            --purple: #9b7fe8;
+            --muted: #4a6070;
+            --text: #a8c0d0;
+            --text-bright: #daeaf5;
+            --mono: 'Space Mono', monospace;
+            --sans: 'Syne', sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: .2;
+            pointer-events: none;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(7, 11, 16, .92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            font-family: var(--mono);
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--blue);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        .brand-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(79, 163, 224, .1);
+            border: 1px solid rgba(79, 163, 224, .3);
+            border-radius: 6px;
+            display: grid;
+            place-items: center;
+            font-size: .85rem;
+        }
+
+        .btn-back {
+            font-family: var(--mono);
+            font-size: .75rem;
+            font-weight: 700;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: .35rem .9rem;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+
+        .btn-back:hover {
+            border-color: var(--border-b);
+            color: var(--text);
+        }
+
+        /* SAYFA İÇERİĞİ */
+        .page-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 28px 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* BAŞLIK */
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        .page-title span {
+            color: var(--blue);
+        }
+
+        .page-subtitle {
+            font-family: var(--mono);
+            font-size: .75rem;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        /* ÖZET KARTLAR */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .summary-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: var(--mono);
+        }
+
+        .summary-label {
+            font-size: .65rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* GEÇMİŞ TABLOSU */
+        .history-table-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .history-table-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--mono);
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--blue);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            font-family: var(--mono);
+            font-size: .68rem;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 10px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, .02);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background .15s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, .02);
+        }
+
+        td {
+            padding: 12px 16px;
+            font-family: var(--mono);
+            font-size: .78rem;
+            color: var(--text);
+            vertical-align: top;
+        }
+
+        .badge {
+            font-size: .65rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .badge-up {
+            background: rgba(78, 201, 139, .1);
+            color: var(--green);
+            border: 1px solid rgba(78, 201, 139, .3);
+        }
+
+        .badge-down {
+            background: rgba(224, 82, 82, .1);
+            color: var(--red);
+            border: 1px solid rgba(224, 82, 82, .3);
+        }
+
+        .badge-scan {
+            background: rgba(79, 163, 224, .1);
+            color: var(--blue);
+            border: 1px solid rgba(79, 163, 224, .3);
+        }
+
+        .port-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .port-chip {
+            font-size: .65rem;
+            background: rgba(79, 163, 224, .07);
+            border: 1px solid rgba(79, 163, 224, .18);
+            color: var(--blue);
+            padding: 2px 7px;
+            border-radius: 3px;
+        }
+
+        .vuln-count {
+            font-size: .75rem;
+            color: var(--orange);
+            font-weight: 700;
+        }
+
+        .no-data {
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            opacity: .3;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        /* DETAY SATIRINI AÇMA */
+        .detail-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 3px 8px;
+            font-size: .7rem;
+            font-family: var(--mono);
+            transition: all .15s;
+        }
+
+        .detail-btn:hover {
+            border-color: var(--border-b);
+            color: var(--text);
+        }
+
+        .detail-row {
+            display: none;
+        }
+
+        .detail-row.open {
+            display: table-row;
+        }
+
+        .detail-cell {
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, .2);
+            font-family: var(--mono);
+            font-size: .72rem;
+            color: var(--text);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="brand">
+            <span class="brand-icon"><i class="fa-solid fa-tower-observation"></i></span>
+            THE WATCHTOWER
+        </a>
+        <a href="/" class="btn-back">
+            <i class="fa-solid fa-arrow-left"></i> Dashboard
+        </a>
+    </nav>
+
+    <div class="page-content">
+
+        <div class="page-header">
+            <div class="page-title">
+                <i class="fa-solid fa-clock-rotate-left" style="color:var(--blue)"></i>
+                <span>{{ target.name }}</span> — Tarama Geçmişi
+            </div>
+            <div class="page-subtitle">{{ target.url }} &nbsp;·&nbsp; Son {{ history|length }} tarama</div>
+        </div>
+
+        <!-- ÖZET -->
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-label">Toplam Tarama</div>
+                <div class="summary-value" style="color:var(--text-bright)">{{ history|length }}</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">Aktif</div>
+                <div class="summary-value" style="color:var(--green)">
+                    {% set c = namespace(v=0) %}
+                    {% for h in history %}{% if 'Aktif' in h.status %}{% set c.v = c.v + 1 %}{% endif %}{% endfor %}
+                    {{ c.v }}
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">Hata</div>
+                <div class="summary-value" style="color:var(--red)">
+                    {% set c = namespace(v=0) %}
+                    {% for h in history %}{% if 'Hata' in (h.status or '') %}{% set c.v = c.v + 1 %}{% endif %}{% endfor
+                    %}
+                    {{ c.v }}
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">Tarama Aralığı</div>
+                <div class="summary-value" style="color:var(--blue)">{{ target.interval }}<span
+                        style="font-size:.8rem;color:var(--muted)"> dk</span></div>
+            </div>
+        </div>
+
+        <!-- TABLO -->
+        <div class="history-table-wrap">
+            <div class="history-table-header">
+                <i class="fa-solid fa-list"></i> Tarama Kayıtları
+            </div>
+
+            {% if history %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tarih & Saat</th>
+                        <th>Durum</th>
+                        <th>Açık Portlar</th>
+                        <th>Bulgular</th>
+                        <th>Detay</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in history %}
+                    <tr>
+                        <td style="color:var(--muted)">{{ loop.index }}</td>
+                        <td>{{ h.scanned_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                        <td>
+                            {% if 'Aktif' in h.status %}
+                            <span class="badge badge-up">UP</span>
+                            {% elif 'Hata' in h.status %}
+                            <span class="badge badge-down">DOWN</span>
+                            {% else %}
+                            <span class="badge badge-scan">{{ h.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if h.open_ports %}
+                            <div class="port-list">
+                                {% for port in h.open_ports.split(',') %}
+                                <span class="port-chip">{{ port.strip() }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <span class="no-data">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if h.vulns %}
+                            <span class="vuln-count">
+                                {{ h.vulns.split('|') | length }} bulgu
+                            </span>
+                            {% else %}
+                            <span class="no-data">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if h.vulns or h.last_error %}
+                            <div style="display:flex;gap:6px;">
+                                <button class="detail-btn" onclick="toggleDetail('detail-{{ h.id }}')">
+                                    Göster
+                                </button>
+                                <a href="/download_report/history/{{ h.id }}" class="detail-btn"
+                                    style="text-decoration:none;color:var(--red);border-color:rgba(224,82,82,.3);">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </a>
+                            </div>
+                            {% else %}
+                            <span class="no-data">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if h.vulns or h.last_error %}
+                    <tr class="detail-row" id="detail-{{ h.id }}">
+                        <td colspan="6" class="detail-cell">{% if h.last_error %}HATA: {{ h.last_error }}{% else %}{{
+                            h.vulns | replace(' | ', '\n') }}{% endif %}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <p>Henüz tarama geçmişi yok.</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <script>
+        function toggleDetail(id) {
+            const row = document.getElementById(id);
+            row.classList.toggle('open');
+        }
+    </script>
+</body>
+
+</html>

@@ -1071,6 +1071,10 @@
                 </span>
             
                 <div style="display:flex;gap:6px;">
+                    <!-- Geçmiş -->
+                    <a href="/history/{{ target.id }}" class="footer-btn footer-btn-blue" title="Tarama Geçmişi">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </a>
                     <!-- Düzenle -->
                     <button class="footer-btn"
                         onclick="fillEditModal('{{ target.id }}','{{ target.name }}','{{ target.url }}','{{ target.interval }}')"
