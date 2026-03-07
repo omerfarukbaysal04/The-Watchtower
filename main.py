@@ -284,3 +284,83 @@ async def compare_history(request: Request, history_id: int, db: Session = Depen
         "yeni_durum":      current.status,
         "degisiklik_var":  bool(yeni_portlar or kapanan_portlar or yeni_cveler or kapanan_cveler or durum_degisti)
     })
+# ── REST API ──────────────────────────────────────────────
+
+@app.get("/api/targets")
+@login_required
+async def api_get_targets(request: Request, db: Session = Depends(get_session)):
+    targets = db.exec(select(Target)).all()
+    return [
+        {
+            "id": t.id,
+            "name": t.name,
+            "url": t.url,
+            "status": t.status,
+            "interval": t.interval,
+            "ssl_days": t.ssl_days,
+            "open_ports": t.open_ports,
+            "last_check": t.last_check.isoformat() if t.last_check else None,
+        }
+        for t in targets
+    ]
+
+
+@app.get("/api/targets/{target_id}")
+@login_required
+async def api_get_target(request: Request, target_id: int, db: Session = Depends(get_session)):
+    target = db.get(Target, target_id)
+    if not target:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Hedef bulunamadı.")
+    return {
+        "id": target.id,
+        "name": target.name,
+        "url": target.url,
+        "status": target.status,
+        "interval": target.interval,
+        "ssl_days": target.ssl_days,
+        "open_ports": target.open_ports,
+        "vulns": target.vulns,
+        "last_check": target.last_check.isoformat() if target.last_check else None,
+        "last_error": target.last_error,
+    }
+
+
+@app.get("/api/targets/{target_id}/history")
+@login_required
+async def api_get_history(request: Request, target_id: int, db: Session = Depends(get_session)):
+    from modules.models import ScanHistory
+    target = db.get(Target, target_id)
+    if not target:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Hedef bulunamadı.")
+    history = db.exec(
+        select(ScanHistory)
+        .where(ScanHistory.target_id == target_id)
+        .order_by(ScanHistory.scanned_at.desc())
+    ).all()
+    return [
+        {
+            "id": h.id,
+            "scanned_at": h.scanned_at.isoformat(),
+            "status": h.status,
+            "open_ports": h.open_ports,
+            "ssl_days": h.ssl_days,
+            "last_error": h.last_error,
+        }
+        for h in history
+    ]
+
+
+@app.post("/api/targets/{target_id}/scan")
+@login_required
+async def api_scan_now(request: Request, target_id: int, db: Session = Depends(get_session)):
+    from fastapi import HTTPException
+    target = db.get(Target, target_id)
+    if not target:
+        raise HTTPException(status_code=404, detail="Hedef bulunamadı.")
+    target.last_check = None
+    db.add(target)
+    db.commit()
+    asyncio.create_task(process_single_target(target_id))
+    return {"message": f"{target.name} için tarama başlatıldı.", "target_id": target_id}
